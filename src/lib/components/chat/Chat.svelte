@@ -1495,7 +1495,8 @@
 		prompt = '';
 
 		const messages = createMessagesList(history, history.currentId);
-		const _files = JSON.parse(JSON.stringify(files));
+		// const _files = JSON.parse(JSON.stringify(files));
+		const _files = [...files];
 
 		chatFiles.push(
 			..._files.filter((item) =>
@@ -1519,10 +1520,64 @@
 			childrenIds: [],
 			role: 'user',
 			content: userPrompt,
+			additionalMessage: "",
 			files: _files.length > 0 ? _files : undefined,
 			timestamp: Math.floor(Date.now() / 1000), // Unix epoch
 			models: selectedModels
 		};
+
+		// let userMessage = {
+		// 			id: userMessageId,
+		// 			parentId: messages.length !== 0 ? messages.at(-1).id : null,
+		// 			childrenIds: [],
+		// 			role: 'user',
+		// 			content: userPrompt,
+		// 			additionalMessage: "",
+		// 			timestamp: Math.floor(Date.now() / 1000), // Unix epoch
+		// 			models: selectedModels
+		// 		};
+				console.log('userMessage', userMessage);
+		
+
+		if(_files.length > 0) {
+			try {
+				// Create FormData just like curl -F 'image=@file'
+				const formData = new FormData();
+				formData.append("image", _files[0].detail);
+				// Send POST request to your API
+				const CNNresponse = await fetch("http://localhost:8000/recognize", {
+					method: "POST",
+					body: formData
+				});
+
+				if (!CNNresponse.ok) throw new Error("CNN API error " + CNNresponse.status);
+				let CNNresult = await CNNresponse.json();
+				console.log("CNN API response:", CNNresult);
+
+				let extractedArtWorkID = CNNresult["matches"][0]["artwork_id"].split(".")[0];
+				let ArtworkDBresponse = await fetch("http://localhost:7773/api/artworks/"+ extractedArtWorkID);
+				if (!ArtworkDBresponse.ok) throw new Error("Artwork DB API error " + ArtworkDBresponse.status);
+				let ArtworkDBresult = await ArtworkDBresponse.json();
+				console.log("Artwork DB API response:", ArtworkDBresult);
+
+				let artwork_artistResponce = await fetch("http://localhost:7773/api/artists/"+ ArtworkDBresult["result"]["artistId"]);
+				if (!artwork_artistResponce.ok) throw new Error("Artist DB API error " + artwork_artistResponce.status);
+				let artwork_artist_result = await artwork_artistResponce.json();
+				console.log("Artist DB API response:", artwork_artist_result);
+				let artwork_Information = ArtworkDBresult["result"]
+				let artworkRelativeArtist = artwork_artist_result["result"];
+				let artworkSummary = "\n Artwork Image identified. Below is information of the artwork and artist for your reference.\n" + JSON.stringify(artwork_Information) +JSON.stringify(artworkRelativeArtist);
+				console.log("Final userPrompt:", artworkSummary);
+				userMessage.additionalMessage = artworkSummary
+
+				} catch (e) {
+				// error = e.message;
+				console.error(e);
+				} finally {
+				// loading = false;
+				}
+
+		}
 
 		// Add message to history and Set currentId to messageId
 		history.messages[userMessageId] = userMessage;
@@ -1763,9 +1818,10 @@
 				: undefined,
 			..._messages.map((message) => ({
 				...message,
-				content: processDetails(message.content)
+				content: processDetails(message.content) 
 			}))
 		].filter((message) => message);
+		console.log("Messages: ",messages)
 
 		messages = messages
 			.map((message, idx, arr) => ({
@@ -1780,11 +1836,16 @@
 								},
 								...message.files
 									.filter((file) => file.type === 'image')
+									// .map((file) => ({
+									// 	type: 'image_url',
+									// 	image_url: {
+									// 		url: file.url
+									// 	}
+									// }))
+									//adding previous DB result
 									.map((file) => ({
-										type: 'image_url',
-										image_url: {
-											url: file.url
-										}
+										type: 'text',
+										text: message.additionalMessage
 									}))
 							]
 						}
@@ -1793,6 +1854,7 @@
 						})
 			}))
 			.filter((message) => message?.role === 'user' || message?.content?.trim());
+		
 
 		const toolIds = [];
 		const toolServerIds = [];
