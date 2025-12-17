@@ -110,8 +110,9 @@
 	export let history;
 	export let messageId;
 	export let selectedModels = [];
-
+	export let currentCooperativeArtworkInformation;
 	let message: MessageType = JSON.parse(JSON.stringify(history.messages[messageId]));
+	
 	$: if (history.messages) {
 		if (JSON.stringify(message) !== JSON.stringify(history.messages[messageId])) {
 			message = JSON.parse(JSON.stringify(history.messages[messageId]));
@@ -137,6 +138,7 @@
 	export let regenerateResponse: Function;
 
 	export let addMessages: Function;
+	export let submitPrompt: Function;
 
 	export let isLastMessage = true;
 	export let readOnly = false;
@@ -572,7 +574,7 @@
 	}
 
 	onMount(async () => {
-		// console.log('ResponseMessage mounted');
+		console.log('ResponseMessage mounted');
 
 		await tick();
 		if (buttonsContainerElement) {
@@ -623,7 +625,8 @@
 			<Name>
 				<Tooltip content={model?.name ?? message.model} placement="top-start">
 					<span class="line-clamp-1 text-black dark:text-white">
-						{model?.name ?? message.model}
+						<!-- {model?.name ?? message.model} -->
+						 {"Museum Assistant Muse"}
 					</span>
 				</Tooltip>
 
@@ -761,6 +764,7 @@
 								{:else if message.content && message.error !== true}
 									<!-- always show message contents even if there's an error -->
 									<!-- unless message.error === true which is legacy error handling, where the error message is stored in message.content -->
+
 									<ContentRenderer
 										id={`${chatId}-${message.id}`}
 										messageId={message.id}
@@ -1478,6 +1482,37 @@
 						{/if}
 					</div>
 
+					{#if history.messages[message.parentId].firstTimeCooperativeArtworkIdentification &&message.done}
+						<div
+							id="detail-button-of-coorperative-artwork"
+							class="flex space-x-4"
+						>
+
+							<button
+							class="bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full p-2 self-center"
+							type="button"
+							on:click={() => {
+								let cooperativeArtworkMessage = history.messages[message.parentId];
+								console.log(cooperativeArtworkMessage);
+								let cooperativeArtworkInfo = JSON.stringify(cooperativeArtworkMessage.additionalMessage);
+								submitMessage(message?.id,"More about the artwork",cooperativeArtworkInfo)
+							}}>More about the artwork</button>
+							
+							<button
+							class="bg-black text-white hover:bg-gray-900 dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-full p-2 self-center"
+							type="button"
+							on:click={() => {
+								let cooperativeArtworkMessage = history.messages[message.parentId];
+								console.log(cooperativeArtworkMessage);
+								let cooperativeArtworkInfo = JSON.stringify(cooperativeArtworkMessage.additionalMessage);
+								submitMessage(message?.id,"More about the artist",cooperativeArtworkInfo)
+							}}>More about the artist</button>
+
+							
+					</div>
+					{/if}
+					
+					
 					{#if message.done && showRateComment}
 						<RateComment
 							bind:message

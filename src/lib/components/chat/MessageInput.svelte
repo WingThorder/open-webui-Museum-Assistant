@@ -604,6 +604,29 @@
 				extension: file.name.split('.').at(-1)
 			});
 
+			// try {
+			// 	// Create FormData just like curl -F 'image=@file'
+			// 	const formData = new FormData();
+			// 	formData.append("image", file);
+			// 	console.log(formData.get("image"));
+			// 	// Send POST request to your API
+			// 	const response = await fetch("http://localhost:8000/recognize", {
+			// 		method: "POST",
+			// 		body: formData
+			// 	});
+
+			// 	if (!response.ok) throw new Error("CNN API error " + response.status);
+			// 	let result = await response.json();
+			// 	console.log("CNN API response:", result);
+			// 	} catch (e) {
+			// 	// error = e.message;
+			// 	console.error(e);
+			// 	} finally {
+			// 	// loading = false;
+			// 	}
+
+			
+
 			if (
 				($config?.file?.max_size ?? null) !== null &&
 				file.size > ($config?.file?.max_size ?? 0) * 1024 * 1024
@@ -667,12 +690,13 @@
 					let imageUrl = event.target.result;
 
 					imageUrl = await compressImageHandler(imageUrl, $settings, $config);
-
+					console.log('Reading image:');
 					files = [
 						...files,
 						{
 							type: 'image',
-							url: `${imageUrl}`
+							url: `${imageUrl}`,
+							detail: file
 						}
 					];
 				};
@@ -950,6 +974,7 @@
 						accept="image/*"
 						hidden
 						on:change={async () => {
+							
 							if (inputFiles && inputFiles.length > 0) {
 								const _inputFiles = Array.from(inputFiles);
 								inputFilesHandler(_inputFiles);

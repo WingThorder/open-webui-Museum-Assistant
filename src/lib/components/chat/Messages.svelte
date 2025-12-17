@@ -28,7 +28,7 @@
 
 	export let chatId = '';
 	export let user = $_user;
-
+	export let currentCooperativeArtworkInformation;
 	export let prompt;
 	export let history = {};
 	export let selectedModels;
@@ -56,6 +56,8 @@
 	export let autoScroll;
 
 	export let onSelect = (e) => {};
+
+	export let submitPrompt: Function;
 
 	export let messagesCount: number | null = 20;
 	let messagesLoading = false;
@@ -427,6 +429,7 @@
 							<Message
 								{chatId}
 								bind:history
+								bind:currentCooperativeArtworkInformation
 								{selectedModels}
 								messageId={message.id}
 								idx={messageIdx}

@@ -355,9 +355,10 @@
 				name: file.name,
 				type: file.type,
 				size: file.size,
+				url: file.url,
 				extension: file.name.split('.').at(-1)
 			});
-
+			
 			if (
 				($config?.file?.max_size ?? null) !== null &&
 				file.size > ($config?.file?.max_size ?? 0) * 1024 * 1024
@@ -373,7 +374,7 @@
 				);
 				return;
 			}
-
+			
 			if (file['type'].startsWith('image/')) {
 				const compressImageHandler = async (imageUrl, settings = {}, config = {}) => {
 					// Quick shortcut so we don’t do unnecessary work.
@@ -412,10 +413,9 @@
 				};
 
 				let reader = new FileReader();
-
 				reader.onload = async (event) => {
 					let imageUrl = event.target.result;
-
+					console.info("The uploaded imageURL is: ",imageUrl);
 					// Compress the image if settings or config require it
 					if ($settings?.imageCompression && $settings?.imageCompressionInChannels) {
 						imageUrl = await compressImageHandler(imageUrl, $settings, $config);
@@ -428,6 +428,7 @@
 							url: `${imageUrl}`
 						}
 					];
+
 				};
 
 				reader.readAsDataURL(file['type'] === 'image/heic' ? await convertHeicToJpeg(file) : file);
@@ -815,6 +816,7 @@
 														alt=""
 														imageClassName=" size-10 rounded-xl object-cover"
 													/>
+			
 												</div>
 												<div class=" absolute -top-1 -right-1">
 													<button

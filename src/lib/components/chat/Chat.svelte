@@ -91,11 +91,13 @@
 	import Sidebar from '../icons/Sidebar.svelte';
 	import { getFunctions } from '$lib/apis/functions';
 	import Image from '../common/Image.svelte';
+	import { json } from '@sveltejs/kit';
+	import ResponseMessage from './Messages/ResponseMessage.svelte';
 
 	export let chatIdProp = '';
 
 	let loading = true;
-
+	let navbarElement = null;
 	const eventTarget = new EventTarget();
 	let controlPane;
 	let controlPaneComponent;
@@ -103,10 +105,7 @@
 	let messageInput;
 
 	let autoScroll = true;
-	let processing = '';
 	let messagesContainerElement: HTMLDivElement;
-
-	let navbarElement;
 
 	let showEventConfirmation = false;
 	let eventConfirmationTitle = '';
@@ -130,6 +129,7 @@
 	let codeInterpreterEnabled = false;
 
 	let showCommands = false;
+	let currentCooperativeArtworkInformation = null; // a varivle to hold the current cooperative information
 
 	let generating = false;
 	let generationController = null;
@@ -368,7 +368,17 @@
 				} else if (type === 'chat:message:error') {
 					message.error = data.error;
 				} else if (type === 'chat:message:follow_ups') {
-					message.followUps = data.follow_ups;
+					let parentMessage = history.messages[message.parentId];
+					console.log(message);
+					console.log(data.follow_ups);
+
+					if (parentMessage.additionalMessage === '') {
+						message.followUps = data.follow_ups;
+					} else {
+						data.follow_ups.splice(0, 0, 'Know more about the artist');
+						console.log(data.follow_ups);
+						message.followUps = data.follow_ups;
+					}
 
 					if (autoScroll) {
 						scrollToBottom('smooth');
@@ -1495,7 +1505,8 @@
 		prompt = '';
 
 		const messages = createMessagesList(history, history.currentId);
-		const _files = JSON.parse(JSON.stringify(files));
+		// const _files = JSON.parse(JSON.stringify(files));
+		const _files = [...files];
 
 		chatFiles.push(
 			..._files.filter((item) =>
@@ -1519,10 +1530,97 @@
 			childrenIds: [],
 			role: 'user',
 			content: userPrompt,
+			additionalMessage: '',
 			files: _files.length > 0 ? _files : undefined,
 			timestamp: Math.floor(Date.now() / 1000), // Unix epoch
-			models: selectedModels
+			models: selectedModels,
+			firstTimeCooperativeArtworkIdentification: false // to identify if a cooperative artwork is identified first
 		};
+
+		console.log('userMessage', userMessage);
+		await (async function () {
+			if (_files.length > 0) {
+				try {
+					// Create FormData just like curl -F 'image=@file'
+					const formData = new FormData();
+					formData.append('image', _files[0].detail);
+					// Send POST request to your API Remember to check IPV4 address
+					const CNNresponse = await fetch('http://localhost:8000/recognize', {
+						method: 'POST',
+						body: formData
+					});
+
+					if (!CNNresponse.ok) throw new Error('CNN API error ' + CNNresponse.status);
+					let CNNresult = await CNNresponse.json();
+					console.log('CNN API response:', CNNresult);
+
+					let extractedArtWorkSimilarity = CNNresult['matches'][0]['similarity_score'];
+					//If CNN is confident to identify the artwork, fetch artwork and artist information
+					if (extractedArtWorkSimilarity > 0.75) {
+						let extractedArtWorkID = CNNresult['matches'][0]['artwork_id'].split('.')[0];
+						//fetch artwork information from Artwork DB API
+						let ArtworkDBresponse = await fetch(
+							'http://localhost:7773/api/artworks/' + extractedArtWorkID
+						);
+						if (!ArtworkDBresponse.ok)
+							throw new Error('Artwork DB API error ' + ArtworkDBresponse.status);
+						let ArtworkDBresult = await ArtworkDBresponse.json();
+						console.log('Artwork DB API response:', ArtworkDBresult);
+
+						//fetch artist information from Artwork DB API
+						let artwork_artistResponce = await fetch(
+							'http://localhost:7773/api/artists/' + ArtworkDBresult['result']['artistId']
+						);
+						if (!artwork_artistResponce.ok)
+							throw new Error('Artist DB API error ' + artwork_artistResponce.status);
+						let artwork_artist_result = await artwork_artistResponce.json();
+						console.log('Artist DB API response:', artwork_artist_result);
+
+						let artwork_Information = ArtworkDBresult['result'];
+						let artworkRelativeArtist = artwork_artist_result['result'];
+						let artworkSummary = JSON.stringify({ artwork_Information, artworkRelativeArtist });
+						userMessage.additionalMessage = artworkSummary;
+						userMessage.firstTimeCooperativeArtworkIdentification = true;
+						currentCooperativeArtworkInformation = artworkSummary;
+					} else {
+						console.log('Got to google lens');
+						// Go to do google searching
+						let imgBBAPIKEy = 'b809ac0c59871d1e4d9161117043888d';
+
+						const uploadResponse = await fetch(
+							'https://api.imgbb.com/1/upload?key=' + imgBBAPIKEy,
+							{
+								method: 'POST',
+								body: formData
+							}
+						);
+						const uploadData = await uploadResponse.json();
+						const displayer_img_url = uploadData.data.display_url;
+						// Wait for artworkByGoogle
+						const googleResponse = await fetch(
+							'http://localhost:8000/artworkByGoogle?imageUrl=' + displayer_img_url
+						);
+						const googleData = await googleResponse.json();
+						const artWorkTitle = googleData.match_title;
+						const artWorkParagraph = googleData.match_paragraph;
+						const artWorkTable = googleData.match_table;
+						const artworkSummary = JSON.stringify({
+							artWorkTitle,
+							artWorkParagraph,
+							artWorkTable
+						});
+						console.log('Response: ' + JSON.stringify(googleData));
+
+						userMessage.additionalMessage = artworkSummary;
+					}
+				} catch (e) {
+					// error = e.message;
+					console.error(e);
+				} finally {
+					// loading = false;
+				}
+			}
+		})();
 
 		// Add message to history and Set currentId to messageId
 		history.messages[userMessageId] = userMessage;
@@ -1578,18 +1676,33 @@
 
 			if (model) {
 				let responseMessageId = uuidv4();
+				let cooperativeArtworkSummary =
+					history.messages[parentId].additionalMessage != ''
+						? JSON.parse(history.messages[parentId].additionalMessage)
+						: '';
+				console.log(history.messages[parentId].firstTimeCooperativeArtworkIdentification);
+				console.log(cooperativeArtworkSummary);
 				let responseMessage = {
 					parentId: parentId,
 					id: responseMessageId,
 					childrenIds: [],
 					role: 'assistant',
-					content: '',
+					content:
+						cooperativeArtworkSummary != '' &&
+						history.messages[parentId].firstTimeCooperativeArtworkIdentification
+							? `Cooperative Artwork Identified. Below is information of the artwork
+										Title: ${cooperativeArtworkSummary['artwork_Information']['title']}
+										Year: ${cooperativeArtworkSummary['artwork_Information']['year_created']}
+										Medium: ${cooperativeArtworkSummary['artwork_Information']['medium']}
+										Dimensions: ${cooperativeArtworkSummary['artwork_Information']['dimensions']}
+										Artist Name: ${cooperativeArtworkSummary['artworkRelativeArtist']['name']}
+										`
+							: '',
 					model: model.id,
 					modelName: model.name ?? model.id,
 					modelIdx: modelIdx ? modelIdx : _modelIdx,
 					timestamp: Math.floor(Date.now() / 1000) // Unix epoch
 				};
-
 				// Add message to history and Set currentId to messageId
 				history.messages[responseMessageId] = responseMessage;
 				history.currentId = responseMessageId;
@@ -1640,6 +1753,7 @@
 
 					let responseMessageId =
 						responseMessageIds[`${modelId}-${modelIdx ? modelIdx : _modelIdx}`];
+					console.log('responseMessageId', responseMessageId);
 					const chatEventEmitter = await getChatEventEmitter(model.id, _chatId);
 
 					scrollToBottom();
@@ -1766,6 +1880,7 @@
 				content: processDetails(message.content)
 			}))
 		].filter((message) => message);
+		console.log('Messages: ', messages);
 
 		messages = messages
 			.map((message, idx, arr) => ({
@@ -1779,20 +1894,35 @@
 									text: message?.merged?.content ?? message.content
 								},
 								...message.files
-									.filter((file) => file.type === 'image')
-									.map((file) => ({
-										type: 'image_url',
-										image_url: {
-											url: file.url
-										}
-									}))
+									// .filter((file) => file.type === 'image')
+									.map((file) =>
+										message.additionalMessage
+											? {
+													type: 'text',
+													text:
+														'Artwork is identified. Below is information of the artwork for your reference. \n' +
+														message.additionalMessage
+												}
+											: {
+													type: 'image_url',
+													image_url: {
+														url: file.url
+													}
+												}
+									)
 							]
 						}
 					: {
-							content: message?.merged?.content ?? message.content
+							content:
+								message?.merged?.content ??
+								message.content +
+									(message.additionalMessage
+										? `\n\nArtwork is identified. Below is information of the artwork for your reference. \n${message.additionalMessage}`
+										: '')
 						})
 			}))
 			.filter((message) => message?.role === 'user' || message?.content?.trim());
+		console.log('message content: ', messages);
 
 		const toolIds = [];
 		const toolServerIds = [];
@@ -1985,7 +2115,7 @@
 		}
 	};
 
-	const submitMessage = async (parentId, prompt) => {
+	const submitMessage = async (parentId, prompt, additionalMessage = '') => {
 		let userPrompt = prompt;
 		let userMessageId = uuidv4();
 
@@ -1995,7 +2125,9 @@
 			childrenIds: [],
 			role: 'user',
 			content: userPrompt,
+			additionalMessage: additionalMessage,
 			models: selectedModels,
+			firstTimeCooperativeArtworkIdentification: false, // to identify if a cooperative artwork is identified first
 			timestamp: Math.floor(Date.now() / 1000) // Unix epoch
 		};
 
@@ -2014,7 +2146,7 @@
 		if (autoScroll) {
 			scrollToBottom();
 		}
-
+		console.log('userMessage', userMessage);
 		await sendMessage(history, userMessageId);
 	};
 
@@ -2369,6 +2501,7 @@
 								<div class=" h-full w-full flex flex-col">
 									<Messages
 										chatId={$chatId}
+										bind:currentCooperativeArtworkInformation
 										bind:history
 										bind:autoScroll
 										bind:prompt
@@ -2388,6 +2521,7 @@
 										topPadding={true}
 										bottomPadding={files.length > 0}
 										{onSelect}
+										{submitPrompt}
 									/>
 								</div>
 							</div>
