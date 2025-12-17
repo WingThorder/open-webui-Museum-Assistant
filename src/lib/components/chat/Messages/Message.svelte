@@ -15,6 +15,7 @@
 	export let chatId;
 	export let selectedModels = [];
 	export let idx = 0;
+	export let currentCooperativeArtworkInformation
 
 	export let history;
 	export let messageId;
@@ -43,6 +44,7 @@
 	export let readOnly = false;
 	export let editCodeBlock = true;
 	export let topPadding = false;
+	export let submitPrompt: Function;
 </script>
 
 <div
@@ -78,6 +80,7 @@
 				{history}
 				{messageId}
 				{selectedModels}
+				{currentCooperativeArtworkInformation}
 				isLastMessage={messageId === history.currentId}
 				siblings={history.messages[history.messages[messageId].parentId]?.childrenIds ?? []}
 				{setInputText}
@@ -97,6 +100,7 @@
 				{readOnly}
 				{editCodeBlock}
 				{topPadding}
+				{submitPrompt}
 			/>
 		{:else}
 			<MultiResponseMessages
