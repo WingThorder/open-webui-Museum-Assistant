@@ -1504,7 +1504,7 @@
 		messageInput?.setText('');
 		prompt = '';
 
-		const messages = createMessagesList(history, history.currentId);
+		let messages = createMessagesList(history, history.currentId);
 		// const _files = JSON.parse(JSON.stringify(files));
 		const _files = [...files];
 
@@ -1540,6 +1540,11 @@
 		console.log('userMessage', userMessage);
 		await (async function () {
 			if (_files.length > 0) {
+				history = {
+					messages: {},
+					currentId: null
+				};
+				messages = createMessagesList(history, history.currentId);
 				try {
 					// Create FormData just like curl -F 'image=@file'
 					const formData = new FormData();
@@ -1628,6 +1633,7 @@
 
 		// Append messageId to childrenIds of parent message
 		if (messages.length !== 0) {
+			console.log('Message at last: ' + messages.at(-1));
 			history.messages[messages.at(-1).id].childrenIds.push(userMessageId);
 		}
 
