@@ -28,6 +28,13 @@
 	import { getChatList } from '$lib/apis/chats';
 
 	const i18n = getContext('i18n');
+	const assistantDisplayName = 'Museum Assistant Muse';
+	const fallbackAvatars = [
+		`${WEBUI_BASE_URL}/static/AIGuide.png`,
+		`${WEBUI_BASE_URL}/static/AIGuide1.png`,
+		`${WEBUI_BASE_URL}/static/AIGuide2.png`
+	];
+	let fallbackAvatar = fallbackAvatars[0];
 
 	export let createMessagePair: Function;
 	export let stopResponse: Function;
@@ -68,6 +75,9 @@
 	$: models = selectedModels.map((id) => $_models.find((m) => m.id === id));
 
 	onMount(() => {});
+	onMount(() => {
+		fallbackAvatar = fallbackAvatars[Math.floor(Math.random() * fallbackAvatars.length)];
+	});
 </script>
 
 <div class="m-auto w-full max-w-6xl px-2 @2xl:px-20 translate-y-6 py-24 text-center">
@@ -126,9 +136,7 @@
 										<img
 											crossorigin="anonymous"
 											src={model?.info?.meta?.profile_image_url ??
-												($i18n.language === 'dg-DG'
-													? `${WEBUI_BASE_URL}/doge.png`
-													: `${WEBUI_BASE_URL}/static/favicon.png`)}
+												fallbackAvatar}
 											class=" size-9 @sm:size-10 rounded-full border-[1px] border-gray-100 dark:border-none"
 											aria-hidden="true"
 											draggable="false"
@@ -143,15 +151,9 @@
 						class=" text-3xl @sm:text-3xl line-clamp-1 flex items-center"
 						in:fade={{ duration: 100 }}
 					>
-						{#if models[selectedModelIdx]?.name}
-							<Tooltip
-								content={models[selectedModelIdx]?.name}
-								placement="top"
-								className=" flex items-center "
-							>
-								<span class="line-clamp-1">
-									{models[selectedModelIdx]?.name}
-								</span>
+						{#if assistantDisplayName}
+							<Tooltip content={assistantDisplayName} placement="top" className=" text-xl flex items-center ">
+								<span class="line-clamp-1">{assistantDisplayName}</span>
 							</Tooltip>
 						{:else}
 							{$i18n.t('Hello, {{name}}', { name: $user?.name })}

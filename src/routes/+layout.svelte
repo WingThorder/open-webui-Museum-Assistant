@@ -69,6 +69,24 @@
 
 	const BREAKPOINT = 768;
 
+	const applyTheme = (nextTheme) => {
+		theme.set(nextTheme);
+		localStorage.theme = nextTheme;
+
+		if (typeof document === 'undefined' || typeof window === 'undefined') {
+			return;
+		}
+
+		const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+		const shouldUseDark = nextTheme === 'dark' || (nextTheme === 'system' && prefersDark);
+		document.documentElement.classList.toggle('dark', shouldUseDark);
+	};
+
+	const toggleTheme = () => {
+		const nextTheme = $theme === 'dark' ? 'light' : 'dark';
+		applyTheme(nextTheme);
+	};
+
 	const setupSocket = async (enableWebsocket) => {
 		const _socket = io(`${WEBUI_BASE_URL}` || undefined, {
 			reconnection: true,
@@ -724,6 +742,25 @@
 	{:else}
 		<slot />
 	{/if}
+
+	<button
+		class="fixed bottom-4 right-4 z-[200] flex items-center gap-2 rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-800 shadow-lg px-3 py-2 hover:bg-white dark:hover:bg-gray-900 transition"
+		on:click={toggleTheme}
+		aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+	>
+		{#if $theme === 'dark'}
+			<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<circle cx="12" cy="12" r="4" />
+				<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+			</svg>
+			<span class="text-sm font-medium">Light</span>
+		{:else}
+			<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+				<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" />
+			</svg>
+			<span class="text-sm font-medium">Dark</span>
+		{/if}
+	</button>
 {/if}
 
 <Toaster

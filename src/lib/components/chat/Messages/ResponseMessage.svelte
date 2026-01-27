@@ -55,6 +55,8 @@
 	import StatusHistory from './ResponseMessage/StatusHistory.svelte';
 	import FullHeightIframe from '$lib/components/common/FullHeightIframe.svelte';
 
+	const assistantDisplayName = 'Museum Assistant Muse';
+
 	interface MessageType {
 		id: string;
 		model: string;
@@ -623,10 +625,9 @@
 
 		<div class="flex-auto w-0 pl-1 relative">
 			<Name>
-				<Tooltip content={model?.name ?? message.model} placement="top-start">
+				<Tooltip content={assistantDisplayName} placement="top-start">
 					<span class="line-clamp-1 text-black dark:text-white">
-						<!-- {model?.name ?? message.model} -->
-						 {"Museum Assistant Muse"}
+						{assistantDisplayName}
 					</span>
 				</Tooltip>
 
@@ -664,7 +665,13 @@
 								{#each message.files as file}
 									<div>
 										{#if file.type === 'image'}
-											<Image src={file.url} alt={message.content} />
+											<div class="museum-frame">
+												<Image
+													src={file.url}
+													alt={message.content}
+													imageClassName="museum-frame__img"
+												/>
+											</div>
 										{:else}
 											<FileItem
 												item={file}
