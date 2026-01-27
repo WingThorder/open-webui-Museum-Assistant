@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
-
+	
+	import { DropdownMenu } from 'bits-ui'; //Change the sidebar to DropDown
 	import { goto } from '$app/navigation';
 	import {
 		user,
@@ -41,7 +42,6 @@
 		importChat
 	} from '$lib/apis/chats';
 	import { createNewFolder, getFolders, updateFolderParentIdById } from '$lib/apis/folders';
-	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import ArchivedChatsModal from './ArchivedChatsModal.svelte';
 	import UserMenu from './Sidebar/UserMenu.svelte';
@@ -49,29 +49,27 @@
 	import Spinner from '../common/Spinner.svelte';
 	import Loader from '../common/Loader.svelte';
 	import Folder from '../common/Folder.svelte';
-	import Tooltip from '../common/Tooltip.svelte';
 	import Folders from './Sidebar/Folders.svelte';
 	import { getChannels, createNewChannel } from '$lib/apis/channels';
 	import ChannelModal from './Sidebar/ChannelModal.svelte';
 	import ChannelItem from './Sidebar/ChannelItem.svelte';
 	import PencilSquare from '../icons/PencilSquare.svelte';
-	import Search from '../icons/Search.svelte';
 	import SearchModal from './SearchModal.svelte';
 	import FolderModal from './Sidebar/Folders/FolderModal.svelte';
 	import Sidebar from '../icons/Sidebar.svelte';
-	import PinnedModelList from './Sidebar/PinnedModelList.svelte';
-	import Note from '../icons/Note.svelte';
 	import { slide } from 'svelte/transition';
 
 	const BREAKPOINT = 768;
 
-	let scrollTop = 0;
 
-	let navElement;
 	let shiftKey = false;
 
 	let selectedChatId = null;
 	let showPinnedChat = true;
+
+	let showQuickActions = true;
+	let showChannels = true;
+	let showChatList = true;
 
 	let showCreateChannel = false;
 
@@ -300,6 +298,9 @@
 	let touchstart;
 	let touchend;
 
+	let mainMenuOpen = false;
+	let userMenuOpen = false; // UserMenu 已有自己的 show，但這裡用來控制
+
 	function checkDirection() {
 		const screenWidth = window.innerWidth;
 		const swipeDistance = Math.abs(touchend.screenX - touchstart.screenX);
@@ -344,6 +345,11 @@
 
 	onMount(async () => {
 		showPinnedChat = localStorage?.showPinnedChat ? localStorage.showPinnedChat === 'true' : true;
+		showQuickActions = localStorage?.showQuickActions
+			? localStorage.showQuickActions === 'true'
+			: true;
+		showChannels = localStorage?.showChannels ? localStorage.showChannels === 'true' : true;
+		showChatList = localStorage?.showChatList ? localStorage.showChatList === 'true' : true;
 
 		mobile.subscribe((value) => {
 			if ($showSidebar && value) {
@@ -492,19 +498,6 @@
 	}}
 />
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-
-{#if $showSidebar}
-	<div
-		class=" {$isApp
-			? ' ml-[4.5rem] md:ml-0'
-			: ''} fixed md:hidden z-40 top-0 right-0 left-0 bottom-0 bg-black/60 w-full min-h-screen h-screen flex justify-center overflow-hidden overscroll-contain"
-		on:mousedown={() => {
-			showSidebar.set(!$showSidebar);
-		}}
-	/>
-{/if}
-
 <SearchModal
 	bind:show={$showSearch}
 	onClose={() => {
@@ -523,256 +516,31 @@
 	}}
 />
 
-{#if !$mobile && !$showSidebar}
-	<div
-		class=" py-2 px-1.5 flex flex-col justify-between text-black dark:text-white hover:bg-gray-50/50 dark:hover:bg-gray-950/50 h-full border-e border-gray-50 dark:border-gray-850 z-10 transition-all"
-		id="sidebar"
-	>
-		<button
-			class="flex flex-col flex-1 {isWindows ? 'cursor-pointer' : 'cursor-[e-resize]'}"
-			on:click={async () => {
-				showSidebar.set(!$showSidebar);
-			}}
-		>
-			<div class="pb-1.5">
-				<Tooltip
-					content={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}
-					placement="right"
-				>
-					<button
-						class="flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group {isWindows
-							? 'cursor-pointer'
-							: 'cursor-[e-resize]'}"
-						aria-label={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}
-					>
-						<div class=" self-center flex items-center justify-center size-9">
-							<img
-								crossorigin="anonymous"
-								src="{WEBUI_BASE_URL}/static/favicon.png"
-								class="sidebar-new-chat-icon size-6 rounded-full group-hover:hidden"
-								alt=""
-							/>
-
-							<Sidebar className="size-5 hidden group-hover:flex" />
-						</div>
-					</button>
-				</Tooltip>
-			</div>
-
-			<div>
-				<div class="">
-					<Tooltip content={$i18n.t('New Chat')} placement="right">
-						<a
-							class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
-							href="/"
-							draggable="false"
-							on:click={async (e) => {
-								e.stopImmediatePropagation();
-								e.preventDefault();
-
-								goto('/');
-								newChatHandler();
-							}}
-							aria-label={$i18n.t('New Chat')}
-						>
-							<div class=" self-center flex items-center justify-center size-9">
-								<PencilSquare className="size-4.5" />
-							</div>
-						</a>
-					</Tooltip>
-				</div>
-
-				<div class="">
-					<Tooltip content={$i18n.t('Search')} placement="right">
-						<button
-							class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
-							on:click={(e) => {
-								e.stopImmediatePropagation();
-								e.preventDefault();
-
-								showSearch.set(true);
-							}}
-							draggable="false"
-							aria-label={$i18n.t('Search')}
-						>
-							<div class=" self-center flex items-center justify-center size-9">
-								<Search className="size-4.5" />
-							</div>
-						</button>
-					</Tooltip>
-				</div>
-
-				{#if ($config?.features?.enable_notes ?? false) && ($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))}
-					<div class="">
-						<Tooltip content={$i18n.t('Notes')} placement="right">
-							<a
-								class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
-								href="/notes"
-								on:click={async (e) => {
-									e.stopImmediatePropagation();
-									e.preventDefault();
-
-									goto('/notes');
-									itemClickHandler();
-								}}
-								draggable="false"
-								aria-label={$i18n.t('Notes')}
-							>
-								<div class=" self-center flex items-center justify-center size-9">
-									<Note className="size-4.5" />
-								</div>
-							</a>
-						</Tooltip>
-					</div>
-				{/if}
-
-				{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
-					<div class="">
-						<Tooltip content={$i18n.t('Workspace')} placement="right">
-							<a
-								class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
-								href="/workspace"
-								on:click={async (e) => {
-									e.stopImmediatePropagation();
-									e.preventDefault();
-
-									goto('/workspace');
-									itemClickHandler();
-								}}
-								aria-label={$i18n.t('Workspace')}
-								draggable="false"
-							>
-								<div class=" self-center flex items-center justify-center size-9">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="1.5"
-										stroke="currentColor"
-										class="size-4.5"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"
-										/>
-									</svg>
-								</div>
-							</a>
-						</Tooltip>
-					</div>
-				{/if}
-			</div>
-		</button>
-
-		<div>
-			<div>
-				<div class=" py-0.5">
-					{#if $user !== undefined && $user !== null}
-						<UserMenu
-							role={$user?.role}
-							on:show={(e) => {
-								if (e.detail === 'archived-chat') {
-									showArchivedChats.set(true);
-								}
-							}}
-						>
-							<div
-								class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
-							>
-								<div class=" self-center flex items-center justify-center size-9">
-									<img
-										src={$user?.profile_image_url}
-										class=" size-6 object-cover rounded-full"
-										alt={$i18n.t('Open User Profile Menu')}
-										aria-label={$i18n.t('Open User Profile Menu')}
-									/>
-								</div>
-							</div>
-						</UserMenu>
-					{/if}
-				</div>
-			</div>
-		</div>
-	</div>
-{/if}
-
-{#if $showSidebar}
-	<div
-		bind:this={navElement}
-		id="sidebar"
-		class="h-screen max-h-[100dvh] min-h-screen select-none {$showSidebar
-			? 'bg-gray-50 dark:bg-gray-950 z-50'
-			: ' bg-transparent z-0 '} {$isApp
-			? `ml-[4.5rem] md:ml-0 `
-			: ' transition-all duration-300 '} shrink-0 text-gray-900 dark:text-gray-200 text-sm fixed top-0 left-0 overflow-x-hidden
-        "
-		transition:slide={{ duration: 250, axis: 'x' }}
-		data-state={$showSidebar}
-	>
-		<div
-			class=" my-auto flex flex-col justify-between h-screen max-h-[100dvh] w-[260px] overflow-x-hidden scrollbar-hidden z-50 {$showSidebar
-				? ''
-				: 'invisible'}"
-		>
-			<div
-				class="sidebar px-2 pt-2 pb-1.5 flex justify-between space-x-1 text-gray-600 dark:text-gray-400 sticky top-0 z-10 -mb-3"
-			>
-				<a
-					class="flex items-center rounded-xl size-8.5 h-full justify-center hover:bg-gray-100/50 dark:hover:bg-gray-850/50 transition no-drag-region"
-					href="/"
-					draggable="false"
-					on:click={newChatHandler}
-				>
-					<img
-						crossorigin="anonymous"
-						src="{WEBUI_BASE_URL}/static/favicon.png"
-						class="sidebar-new-chat-icon size-6 rounded-full"
-						alt=""
-					/>
-				</a>
-
-				<a href="/" class="flex flex-1 px-1.5" on:click={newChatHandler}>
-					<div class=" self-center font-medium text-gray-850 dark:text-white font-primary">
+<!--Web UI-->
+<div class="fixed top-4 left-4 z-[100]">
+		<DropdownMenu.Root bind:open={mainMenuOpen}>
+			<DropdownMenu.Trigger>
+				<button class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-md hover:bg-gray-100 dark:hover:bg-gray-700 transition">
+					<Sidebar class="w-5 h-5" />
+					<span class="font-medium hidden md:inline">{$WEBUI_NAME}</span>
+				</button>
+			</DropdownMenu.Trigger>
+		<DropdownMenu.Content class="w-80 max-h-[80vh] overflow-y-auto bg-white bg-opacity-100 dark:bg-gray-900 dark:bg-opacity-100 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-2 z-[110]">
+			<div class="flex flex-col gap-2">
+				<div class="px-2 text-sm font-medium text-gray-800 dark:text-gray-100">
 						{$WEBUI_NAME}
 					</div>
-				</a>
-				<Tooltip
-					content={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}
-					placement="bottom"
+
+				<Folder
+					className="px-2 mt-0.5"
+					name={$i18n.t('Menu')}
+					chevron={true}
+					bind:open={showQuickActions}
+					on:change={(e) => {
+						localStorage.setItem('showQuickActions', e.detail);
+					}}
+					dragAndDrop={false}
 				>
-					<button
-						class="flex rounded-xl size-8.5 justify-center items-center hover:bg-gray-100/50 dark:hover:bg-gray-850/50 transition {isWindows
-							? 'cursor-pointer'
-							: 'cursor-[w-resize]'}"
-						on:click={() => {
-							showSidebar.set(!$showSidebar);
-						}}
-						aria-label={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}
-					>
-						<div class=" self-center p-1.5">
-							<Sidebar />
-						</div>
-					</button>
-				</Tooltip>
-
-				<div
-					class="{scrollTop > 0
-						? 'visible'
-						: 'invisible'} sidebar-bg-gradient-to-b bg-linear-to-b from-gray-50 dark:from-gray-950 to-transparent from-50% pointer-events-none absolute inset-0 -z-10 -mb-6"
-				></div>
-			</div>
-
-			<div
-				class="relative flex flex-col flex-1 overflow-y-auto scrollbar-hidden pt-3 pb-3"
-				on:scroll={(e) => {
-					if (e.target.scrollTop === 0) {
-						scrollTop = 0;
-					} else {
-						scrollTop = e.target.scrollTop;
-					}
-				}}
-			>
 				<div class="pb-1.5">
 					<div class="px-[7px] flex justify-center text-gray-800 dark:text-gray-200">
 						<a
@@ -792,93 +560,20 @@
 							</div>
 						</a>
 					</div>
-
-					<div class="px-[7px] flex justify-center text-gray-800 dark:text-gray-200">
-						<button
-							id="sidebar-search-button"
-							class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none"
-							on:click={() => {
-								showSearch.set(true);
-							}}
-							draggable="false"
-							aria-label={$i18n.t('Search')}
-						>
-							<div class="self-center">
-								<Search strokeWidth="2" className="size-4.5" />
 							</div>
+				</Folder>
 
-							<div class="flex self-center translate-y-[0.5px]">
-								<div class=" self-center text-sm font-primary">{$i18n.t('Search')}</div>
-							</div>
-						</button>
-					</div>
-
-					{#if ($config?.features?.enable_notes ?? false) && ($user?.role === 'admin' || ($user?.permissions?.features?.notes ?? true))}
-						<div class="px-[7px] flex justify-center text-gray-800 dark:text-gray-200">
-							<a
-								id="sidebar-notes-button"
-								class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-								href="/notes"
-								on:click={itemClickHandler}
-								draggable="false"
-								aria-label={$i18n.t('Notes')}
-							>
-								<div class="self-center">
-									<Note className="size-4.5" strokeWidth="2" />
-								</div>
-
-								<div class="flex self-center translate-y-[0.5px]">
-									<div class=" self-center text-sm font-primary">{$i18n.t('Notes')}</div>
-								</div>
-							</a>
-						</div>
-					{/if}
-
-					{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
-						<div class="px-[7px] flex justify-center text-gray-800 dark:text-gray-200">
-							<a
-								id="sidebar-workspace-button"
-								class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition"
-								href="/workspace"
-								on:click={itemClickHandler}
-								draggable="false"
-								aria-label={$i18n.t('Workspace')}
-							>
-								<div class="self-center">
-									<svg
-										xmlns="http://www.w3.org/2000/svg"
-										fill="none"
-										viewBox="0 0 24 24"
-										stroke-width="2"
-										stroke="currentColor"
-										class="size-4.5"
-									>
-										<path
-											stroke-linecap="round"
-											stroke-linejoin="round"
-											d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"
-										/>
-									</svg>
-								</div>
-
-								<div class="flex self-center translate-y-[0.5px]">
-									<div class=" self-center text-sm font-primary">{$i18n.t('Workspace')}</div>
-								</div>
-							</a>
-						</div>
-					{/if}
-				</div>
-
-				{#if ($models ?? []).length > 0 && ($settings?.pinnedModels ?? []).length > 0}
-					<PinnedModelList bind:selectedChatId {shiftKey} />
-				{/if}
 
 				{#if $config?.features?.enable_channels && ($user?.role === 'admin' || $channels.length > 0)}
 					<Folder
 						className="px-2 mt-0.5"
 						name={$i18n.t('Channels')}
-						chevron={false}
+						chevron={true}
+						bind:open={showChannels}
 						dragAndDrop={false}
+						on:change={(e) => {
+							localStorage.setItem('showChannels', e.detail);
+						}}
 						onAdd={async () => {
 							if ($user?.role === 'admin') {
 								await tick();
@@ -901,63 +596,13 @@
 					</Folder>
 				{/if}
 
-				{#if folders}
-					<Folder
-						className="px-2 mt-0.5"
-						name={$i18n.t('Folders')}
-						chevron={false}
-						onAdd={() => {
-							showCreateFolderModal = true;
-						}}
-						onAddLabel={$i18n.t('New Folder')}
-						on:drop={async (e) => {
-							const { type, id, item } = e.detail;
-
-							if (type === 'folder') {
-								if (folders[id].parent_id === null) {
-									return;
-								}
-
-								const res = await updateFolderParentIdById(localStorage.token, id, null).catch(
-									(error) => {
-										toast.error(`${error}`);
-										return null;
-									}
-								);
-
-								if (res) {
-									await initFolders();
-								}
-							}
-						}}
-					>
-						<Folders
-							bind:folderRegistry
-							{folders}
-							{shiftKey}
-							onDelete={(folderId) => {
-								selectedFolder.set(null);
-								initChatList();
-							}}
-							on:update={() => {
-								initChatList();
-							}}
-							on:import={(e) => {
-								const { folderId, items } = e.detail;
-								importChatHandler(items, false, folderId);
-							}}
-							on:change={async () => {
-								initChatList();
-							}}
-						/>
-					</Folder>
-				{/if}
-
 				<Folder
 					className="px-2 mt-0.5"
 					name={$i18n.t('Chats')}
-					chevron={false}
+					chevron={true}
+					bind:open={showChatList}
 					on:change={async (e) => {
+						localStorage.setItem('showChatList', e.detail);
 						selectedFolder.set(null);
 						await goto('/');
 					}}
@@ -1118,24 +763,6 @@
 												: 'pt-5'} pb-1.5"
 										>
 											{$i18n.t(chat.time_range)}
-											<!-- localisation keys for time_range to be recognized from the i18next parser (so they don't get automatically removed):
-							{$i18n.t('Today')}
-							{$i18n.t('Yesterday')}
-							{$i18n.t('Previous 7 days')}
-							{$i18n.t('Previous 30 days')}
-							{$i18n.t('January')}
-							{$i18n.t('February')}
-							{$i18n.t('March')}
-							{$i18n.t('April')}
-							{$i18n.t('May')}
-							{$i18n.t('June')}
-							{$i18n.t('July')}
-							{$i18n.t('August')}
-							{$i18n.t('September')}
-							{$i18n.t('October')}
-							{$i18n.t('November')}
-							{$i18n.t('December')}
-							-->
 										</div>
 									{/if}
 
@@ -1188,12 +815,8 @@
 						</div>
 					</div>
 				</Folder>
-			</div>
 
-			<div class="px-1.5 pt-1.5 pb-2 sticky bottom-0 z-10 -mt-3 sidebar">
-				<div
-					class=" sidebar-bg-gradient-to-t bg-linear-to-t from-gray-50 dark:from-gray-950 to-transparent from-50% pointer-events-none absolute inset-0 -z-10 -mt-6"
-				></div>
+				<div class="px-1.5 pt-1.5 pb-2">
 				<div class="flex flex-col font-primary">
 					{#if $user !== undefined && $user !== null}
 						<UserMenu
@@ -1222,5 +845,6 @@
 				</div>
 			</div>
 		</div>
+		</DropdownMenu.Content>
+	</DropdownMenu.Root>
 	</div>
-{/if}
