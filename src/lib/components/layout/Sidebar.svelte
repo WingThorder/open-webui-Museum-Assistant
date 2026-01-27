@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
-	
+	import Tooltip from '../common/Tooltip.svelte';
 	import { DropdownMenu } from 'bits-ui'; //Change the sidebar to DropDown
 	import { goto } from '$app/navigation';
 	import {
@@ -528,7 +528,8 @@
 		<DropdownMenu.Content class="w-80 max-h-[80vh] overflow-y-auto bg-white bg-opacity-100 dark:bg-gray-900 dark:bg-opacity-100 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-2 z-[110]">
 			<div class="flex flex-col gap-2">
 				<div class="px-2 text-sm font-medium text-gray-800 dark:text-gray-100">
-						{$WEBUI_NAME}
+						Museum Assistant Muse
+						
 					</div>
 
 				<Folder
@@ -847,4 +848,40 @@
 		</div>
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>
+	{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
+		<div class="">
+			<Tooltip content={$i18n.t('Workspace')} placement="right">
+				<a
+					class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
+					href="/workspace"
+					on:click={async (e) => {
+						e.stopImmediatePropagation();
+						e.preventDefault();
+
+						goto('/workspace');
+						itemClickHandler();
+					}}
+					aria-label={$i18n.t('Workspace')}
+					draggable="false"
+				>
+					<div class=" self-center flex items-center justify-center size-9">
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewBox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+							class="size-4.5"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M13.5 16.875h3.375m0 0h3.375m-3.375 0V13.5m0 3.375v3.375M6 10.5h2.25a2.25 2.25 0 0 0 2.25-2.25V6a2.25 2.25 0 0 0-2.25-2.25H6A2.25 2.25 0 0 0 3.75 6v2.25A2.25 2.25 0 0 0 6 10.5Zm0 9.75h2.25A2.25 2.25 0 0 0 10.5 18v-2.25a2.25 2.25 0 0 0-2.25-2.25H6a2.25 2.25 0 0 0-2.25 2.25V18A2.25 2.25 0 0 0 6 20.25Zm9.75-9.75H18a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18 3.75h-2.25A2.25 2.25 0 0 0 13.5 6v2.25a2.25 2.25 0 0 0 2.25 2.25Z"
+							/>
+						</svg>
+					</div>
+				</a>
+			</Tooltip>
+		</div>
+	{/if}
 	</div>
