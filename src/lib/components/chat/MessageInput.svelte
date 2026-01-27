@@ -1436,6 +1436,25 @@
 												
 										</div>
 
+										<div
+												class="bg-transparent hover:bg-gray-100 text-gray-700 dark:text-white dark:hover:bg-gray-800 rounded-full size-8 flex justify-center items-center outline-hidden focus:outline-hidden"
+											>
+														<button on:click={
+													() => {
+														// Open AR scene in a new window
+														const arWindow = window.open('/ar.html', '_blank', 'width=800,height=600');
+														if (arWindow) {
+															// Focus the new window
+															arWindow.focus();
+														}
+													}
+												}>
+													<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5.5">
+														<path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+													</svg>
+												</button>
+										</div>
+
 										<div class="flex self-center w-[1px] h-4 mx-1 bg-gray-50 dark:bg-gray-800" />
 
 										{#if showWebSearchButton || showImageGenerationButton || showCodeInterpreterButton || showToolsButton || (toggleFilters && toggleFilters.length > 0)}
