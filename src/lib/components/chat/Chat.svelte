@@ -335,7 +335,7 @@
 
 	const chatEventHandler = async (event, cb) => {
 		console.log(event);
-
+		
 		if (event.chat_id === $chatId) {
 			await tick();
 			let message = history.messages[event.message_id];
@@ -343,6 +343,11 @@
 			if (message) {
 				const type = event?.data?.type ?? null;
 				const data = event?.data?.data ?? null;
+				console.log(data)
+				if (Object.prototype.hasOwnProperty.call(data, "content")) {
+					data.content = data.content.replace(/\[\d+\]/g, "");
+				}
+				
 
 				if (type === 'status') {
 					if (message?.statusHistory) {
@@ -377,7 +382,6 @@
 					if (parentMessage.additionalMessage === '') {
 						message.followUps = data.follow_ups;
 					} else {
-						data.follow_ups.splice(0, 0, 'Know more about the artist');
 						console.log(data.follow_ups);
 						message.followUps = data.follow_ups;
 					}
@@ -1436,6 +1440,7 @@
 		}
 
 		console.log(data);
+		data.content = data.content.replace(/\[\d+\]/g, "");
 		await tick();
 
 		if (autoScroll) {
@@ -1695,17 +1700,7 @@
 					id: responseMessageId,
 					childrenIds: [],
 					role: 'assistant',
-					content:
-						cooperativeArtworkSummary != '' &&
-						history.messages[parentId].firstTimeCooperativeArtworkIdentification
-							? `Cooperative Artwork Identified. Below is information of the artwork
-										Title: ${cooperativeArtworkSummary['artwork_Information']['title']}
-										Year: ${cooperativeArtworkSummary['artwork_Information']['year_created']}
-										Medium: ${cooperativeArtworkSummary['artwork_Information']['medium']}
-										Dimensions: ${cooperativeArtworkSummary['artwork_Information']['dimensions']}
-										Artist Name: ${cooperativeArtworkSummary['artworkRelativeArtist']['name']}
-										`
-							: '',
+					content: '',
 					model: model.id,
 					modelName: model.name ?? model.id,
 					modelIdx: modelIdx ? modelIdx : _modelIdx,
