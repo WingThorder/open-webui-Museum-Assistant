@@ -54,6 +54,7 @@
 	import ChannelModal from './Sidebar/ChannelModal.svelte';
 	import ChannelItem from './Sidebar/ChannelItem.svelte';
 	import PencilSquare from '../icons/PencilSquare.svelte';
+	import Grid from '../icons/Grid.svelte';
 	import SearchModal from './SearchModal.svelte';
 	import FolderModal from './Sidebar/Folders/FolderModal.svelte';
 	import Sidebar from '../icons/Sidebar.svelte';
@@ -558,6 +559,20 @@
 
 							<div class="flex self-center translate-y-[0.5px]">
 								<div class=" self-center text-sm font-primary">{$i18n.t('New Chat')}</div>
+							</div>
+						</a>
+						<a
+							class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none"
+							href="/artworks"
+							draggable="false"
+							on:click={itemClickHandler}
+							aria-label="Gallery"
+						>
+							<div class="self-center">
+								<Grid className="size-4.5" strokeWidth="2" />
+							</div>
+							<div class="flex self-center translate-y-[0.5px]">
+								<div class="self-center text-sm font-primary">Gallery</div>
 							</div>
 						</a>
 					</div>

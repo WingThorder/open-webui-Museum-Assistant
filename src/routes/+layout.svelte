@@ -662,7 +662,13 @@
 					// Don't redirect if we're already on the auth page
 					// Needed because we pass in tokens from OAuth logins via URL fragments
 					if ($page.url.pathname !== '/auth') {
-						await goto(`/auth?redirect=${encodedUrl}`);
+						// Only force redirect to auth when authentication is enabled
+						// and we're not in onboarding mode (first-time setup).
+						const requireAuth = $config?.features?.auth ?? true;
+						const onboardingMode = $config?.onboarding ?? false;
+						if (requireAuth && !onboardingMode) {
+							await goto(`/auth?redirect=${encodedUrl}`);
+						}
 					}
 				}
 			}

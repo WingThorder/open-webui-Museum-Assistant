@@ -58,7 +58,14 @@
 
 	onMount(async () => {
 		if ($user === undefined || $user === null) {
-			await goto('/auth');
+			// Only redirect to auth when authentication is required and
+			// we're not in onboarding (first-time setup) mode.
+
+			const requireAuth = $config?.features?.auth ?? true;
+			const onboardingMode = $config?.onboarding ?? false;
+			if (requireAuth && !onboardingMode) {
+				await goto('/auth');
+			}
 		} else if (['user', 'admin'].includes($user?.role)) {
 			try {
 				// Check if IndexedDB exists
