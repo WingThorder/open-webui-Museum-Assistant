@@ -1,22 +1,5 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
-
-	// Sample artwork entries – replace with your API/store later
-	// Using varied aspect ratios for masonry effect; image URLs can be your static assets or API
-	const artworks = [
-		{ id: '1', title: 'Portrait', imageUrl: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=400', span: 1 },
-		{ id: '2', title: 'Landscape', imageUrl: 'https://images.unsplash.com/photo-1541961017774-22349e4a1262?w=400', span: 2 },
-		{ id: '3', title: 'Still Life', imageUrl: 'https://images.unsplash.com/photo-1515405295579-ba7b45403062?w=400', span: 1 },
-		{ id: '4', title: 'Abstract', imageUrl: 'https://images.unsplash.com/photo-1549887534-1541e9326642?w=400', span: 2 },
-		{ id: '5', title: 'Classical', imageUrl: 'https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=400', span: 1 },
-		{ id: '6', title: 'Nature', imageUrl: 'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?w=400', span: 2 },
-		{ id: '7', title: 'Modern', imageUrl: 'https://images.unsplash.com/photo-1561214115-f2f134cc4912?w=400', span: 1 },
-		{ id: '8', title: 'Sculpture', imageUrl: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400', span: 1 },
-		{ id: '9', title: 'Mosaic', imageUrl: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=400', span: 2 },
-		{ id: '10', title: 'Impression', imageUrl: 'https://images.unsplash.com/photo-1578301978018-3005759f48f7?w=400', span: 1 },
-		{ id: '11', title: 'Heritage', imageUrl: 'https://images.unsplash.com/photo-1594909122845-11baa439b7bf?w=400', span: 2 },
-		{ id: '12', title: 'Detail', imageUrl: 'https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=400', span: 1 }
-	];
+	import { artworks, ARTWORK_PLACEHOLDER } from '$lib/data/artworks';
 
 	let showFilterMenu = false;
 </script>
@@ -44,8 +27,8 @@
 	<div class="artworks-masonry">
 		{#each artworks as item}
 			<div class="artworks-item" class:span-2={item.span === 2}>
-				<a href="/" class="artworks-card" on:click|preventDefault={() => goto('/')}>
-					<img src={item.imageUrl} alt={item.title} loading="lazy" />
+				<a href="/artworks/{item.id}" class="artworks-card">
+					<img src={item.imageUrl} alt={item.title} loading="lazy" on:error={(e) => { const el = e.currentTarget; if (el && el.getAttribute('src') !== ARTWORK_PLACEHOLDER) el.setAttribute('src', ARTWORK_PLACEHOLDER); }} />
 				</a>
 			</div>
 		{/each}
@@ -138,6 +121,9 @@
 
 	.artworks-card {
 		display: block;
+		width: 100%;
+		text-decoration: none;
+		color: inherit;
 		border-radius: 1rem;
 		overflow: hidden;
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
