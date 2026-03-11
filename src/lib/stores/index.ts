@@ -28,6 +28,9 @@ export const USAGE_POOL: Writable<null | string[]> = writable(null);
 
 export const theme = writable('system');
 
+/** When true, gallery shows only child-friendly artworks. Toggle via button next to theme. */
+export const childMode = writable(false);
+
 export const shortCodesToEmojis = writable(
 	Object.entries(emojiShortCodes).reduce((acc, [key, value]) => {
 		if (typeof value === 'string') {

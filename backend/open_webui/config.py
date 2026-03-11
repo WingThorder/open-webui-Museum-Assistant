@@ -321,7 +321,7 @@ ENABLE_OAUTH_PERSISTENT_CONFIG = (
 ENABLE_OAUTH_SIGNUP = PersistentConfig(
     "ENABLE_OAUTH_SIGNUP",
     "oauth.enable_signup",
-    os.environ.get("ENABLE_OAUTH_SIGNUP", "False").lower() == "false",
+    os.environ.get("ENABLE_OAUTH_SIGNUP", "False").lower() == "true",
 )
 
 

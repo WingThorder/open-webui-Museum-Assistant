@@ -1,6 +1,8 @@
 <script lang="ts">
-	import { artworks, ARTWORK_PLACEHOLDER } from '$lib/data/artworks';
+	import { getArtworksForGallery, ARTWORK_PLACEHOLDER } from '$lib/data/artworks';
+	import { childMode } from '$lib/stores';
 
+	$: displayArtworks = getArtworksForGallery($childMode);
 	let showFilterMenu = false;
 </script>
 
@@ -25,16 +27,20 @@
 	</header>
 
 	<div class="artworks-masonry">
-		{#each artworks as item}
+		{#each displayArtworks as item}
 			<div class="artworks-item" class:span-2={item.span === 2}>
 				<a href="/artworks/{item.id}" class="artworks-card">
 					<img src={item.imageUrl} alt={item.title} loading="lazy" on:error={(e) => { const el = e.currentTarget; if (el && el.getAttribute('src') !== ARTWORK_PLACEHOLDER) el.setAttribute('src', ARTWORK_PLACEHOLDER); }} />
 				</a>
+				<div class="artworks-caption">
+					<div class="artworks-caption-title">{item.title}</div>
+					{#if item.artist}
+						<div class="artworks-caption-artist">{item.artist}</div>
+					{/if}
+				</div>
 			</div>
 		{/each}
 	</div>
-
-	<p class="artworks-cta">Explore art culture and stories</p>
 </div>
 
 {#if showFilterMenu}
@@ -49,7 +55,6 @@
 <style>
 	.artworks-page {
 		min-height: 100%;
-		background: linear-gradient(165deg, #d4a574 0%, #b8956e 25%, #a67c52 50%, #8b6914 75%, #6b5344 100%);
 		background-attachment: fixed;
 		padding: 1.5rem 1.25rem 5rem;
 		position: relative;
@@ -65,18 +70,22 @@
 	.artworks-title {
 		font-size: 1.75rem;
 		font-weight: 700;
+		color: #111;
+		text-shadow: none;
+		margin: 0;
+	}
+	:global(.dark) .artworks-title {
 		color: #fff;
 		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-		margin: 0;
 	}
 
 	.artworks-filter-btn {
 		width: 2.5rem;
 		height: 2.5rem;
 		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.25);
+		background: rgba(0, 0, 0, 0.08);
 		border: none;
-		color: #fff;
+		color: #111;
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -84,6 +93,13 @@
 		transition: background 0.2s;
 	}
 	.artworks-filter-btn:hover {
+		background: rgba(0, 0, 0, 0.12);
+	}
+	:global(.dark) .artworks-filter-btn {
+		background: rgba(255, 255, 255, 0.25);
+		color: #fff;
+	}
+	:global(.dark) .artworks-filter-btn:hover {
 		background: rgba(255, 255, 255, 0.4);
 	}
 
@@ -141,16 +157,38 @@
 		object-fit: cover;
 	}
 
+	.artworks-caption {
+		padding: 0.5rem 0.25rem 0;
+		color: #1f2937;
+		text-shadow: none;
+	}
+	:global(.dark) .artworks-caption {
+		color: rgba(255, 255, 255, 0.95);
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+	}
+	.artworks-caption-title {
+		font-weight: 600;
+		font-size: 0.875rem;
+		margin-bottom: 0.125rem;
+	}
+	.artworks-caption-artist {
+		font-size: 0.75rem;
+		opacity: 0.9;
+	}
 
 	.artworks-cta {
 		position: absolute;
 		bottom: 2rem;
 		right: 1.25rem;
-		color: rgba(255, 255, 255, 0.95);
+		color: #374151;
 		font-size: 0.9rem;
-		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+		text-shadow: none;
 		margin: 0;
 		pointer-events: none;
+	}
+	:global(.dark) .artworks-cta {
+		color: rgba(255, 255, 255, 0.95);
+		text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 	}
 
 	.artworks-filter-overlay {

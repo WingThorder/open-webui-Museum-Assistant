@@ -1442,7 +1442,7 @@
 														<button on:click={
 													() => {
 														// Open AR scene in a new window
-														const arWindow = window.open('/ar.html', '_blank', 'width=800,height=600');
+														const arWindow = window.open('https://kwan443.github.io/', '_blank', 'width=800,height=600');
 														if (arWindow) {
 															// Focus the new window
 															arWindow.focus();

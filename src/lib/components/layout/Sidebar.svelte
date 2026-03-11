@@ -526,7 +526,7 @@
 					<span class="font-medium hidden md:inline">{$WEBUI_NAME}</span>
 				</button>
 			</DropdownMenu.Trigger>
-		<DropdownMenu.Content class="w-80 max-h-[80vh] overflow-y-auto bg-white bg-opacity-100 dark:bg-gray-900 dark:bg-opacity-100 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-2 z-[110]">
+		<DropdownMenu.Content class="w-72 max-w-[calc(100vw-2rem)] max-h-[80vh] overflow-y-auto bg-white bg-opacity-100 dark:bg-gray-900 dark:bg-opacity-100 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-800 p-2 z-[110]">
 			<div class="flex flex-col gap-2">
 				<div class="px-2 text-sm font-medium text-gray-800 dark:text-gray-100">
 						Museum Assistant Muse
@@ -544,10 +544,10 @@
 					dragAndDrop={false}
 				>
 				<div class="pb-1.5">
-					<div class="px-[7px] flex justify-center text-gray-800 dark:text-gray-200">
+					<div class="px-[7px] flex flex-col gap-1 text-gray-800 dark:text-gray-200">
 						<a
 							id="sidebar-new-chat-button"
-							class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none"
+							class="flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none"
 							href="/"
 							draggable="false"
 							on:click={newChatHandler}
@@ -562,7 +562,7 @@
 							</div>
 						</a>
 						<a
-							class="grow flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none"
+							class="flex items-center space-x-3 rounded-2xl px-2.5 py-2 hover:bg-gray-100 dark:hover:bg-gray-900 transition outline-none"
 							href="/artworks"
 							draggable="false"
 							on:click={itemClickHandler}
@@ -572,7 +572,7 @@
 								<Grid className="size-4.5" strokeWidth="2" />
 							</div>
 							<div class="flex self-center translate-y-[0.5px]">
-								<div class="self-center text-sm font-primary">Gallery</div>
+								<span class="self-center text-sm font-primary">Gallery</span>
 							</div>
 						</a>
 					</div>
@@ -737,7 +737,7 @@
 									name={$i18n.t('Pinned')}
 								>
 									<div
-										class="ml-3 pl-1 mt-[1px] flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900 text-gray-900 dark:text-gray-200"
+										class="ml-3 pl-1 pr-10 mt-[1px] flex flex-col overflow-y-auto scrollbar-hidden border-s border-gray-100 dark:border-gray-900 text-gray-900 dark:text-gray-200"
 									>
 										{#each $pinnedChats as chat, idx (`pinned-chat-${chat?.id ?? idx}`)}
 											<ChatItem
@@ -767,7 +767,7 @@
 						</div>
 					{/if}
 
-					<div class=" flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
+					<div class=" flex-1 flex flex-col overflow-y-auto scrollbar-hidden pr-10">
 						<div class="pt-1.5">
 							{#if $chats}
 								{#each $chats as chat, idx (`chat-${chat?.id ?? idx}`)}

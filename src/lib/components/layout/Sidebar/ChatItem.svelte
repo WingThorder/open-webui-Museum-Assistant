@@ -481,7 +481,7 @@
 					</button>
 				</Tooltip>
 			</div>
-		{:else if shiftKey && mouseOver}
+		{:else if mouseOver}
 			<div class=" flex items-center self-center space-x-1.5">
 				<Tooltip content={$i18n.t('Archive')} className="flex items-center">
 					<button

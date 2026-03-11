@@ -2639,7 +2639,7 @@
 								<div class="absolute top-4 right-4 z-50">
 									<button
 										onclick={() => {
-											window.open('https://localhost:8443/ar.html', '_self');
+											window.open('https://kwan443.github.io/', '_self');
 										}}
 										class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex items-center gap-2"
 										title="Open AR Experience"
