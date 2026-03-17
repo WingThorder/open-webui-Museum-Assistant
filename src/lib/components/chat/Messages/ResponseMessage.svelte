@@ -1492,40 +1492,28 @@
 					{#if history.messages[message.parentId].firstTimeCooperativeArtworkIdentification &&message.done}
 						<div
 							id="detail-button-of-coorperative-artwork"
-							class="flex space-x-4"
+							class="flex space-x-4 justify-center"
 						>
 
 							<button
-							class="relative inline-flex items-center justify-center rounded-[0.75rem] px-6 py-3 
-	bg-[#fefcf8] text-[#4a4a4a] font-medium tracking-wide 
-	border-4 border-[#e2d6c6] outline outline-2 outline-[#d9cbb8]/60 
-	shadow-md transition-all duration-500 ease-out 
-	hover:-translate-y-0.5 hover:shadow-lg hover:bg-[#f9f5f0]
-	active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#d9cbb8]/50
-	dark:bg-[#2b2b2b] dark:text-[#f2f0ea] dark:border-[#5c5347] dark:outline-[#8b8174]/40 dark:hover:bg-[#38332d]"
+							class="bg-transparent p-4 border-1 rounded-xl mt-4 w-35 dark:border-white"
 							type="button"
 							on:click={() => {
 								let cooperativeArtworkMessage = history.messages[message.parentId];
 								console.log(cooperativeArtworkMessage);
 								let cooperativeArtworkInfo = JSON.stringify(cooperativeArtworkMessage.additionalMessage);
 								submitMessage(message?.id,"More about the artwork",cooperativeArtworkInfo)
-							}}>More about the artwork</button>
+							}}>Artwork Info</button>
 							
 							<button
-							class="relative inline-flex items-center justify-center rounded-[0.75rem] px-6 py-3 
-	bg-[#fefcf8] text-[#4a4a4a] font-medium tracking-wide 
-	border-4 border-[#e2d6c6] outline outline-2 outline-[#d9cbb8]/60 
-	shadow-md transition-all duration-500 ease-out 
-	hover:-translate-y-0.5 hover:shadow-lg hover:bg-[#f9f5f0]
-	active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#d9cbb8]/50
-	dark:bg-[#2b2b2b] dark:text-[#f2f0ea] dark:border-[#5c5347] dark:outline-[#8b8174]/40 dark:hover:bg-[#38332d]"
+							class="bg-transparent p-4 border-1 rounded-xl mt-4 w-35 dark:border-white"
 							type="button"
 							on:click={() => {
 								let cooperativeArtworkMessage = history.messages[message.parentId];
 								console.log(cooperativeArtworkMessage);
 								let cooperativeArtworkInfo = JSON.stringify(cooperativeArtworkMessage.additionalMessage);
 								submitMessage(message?.id,"More about the artist",cooperativeArtworkInfo)
-							}}>More about the artist</button>
+							}}>Artist Info</button>
 
 							
 					</div>
