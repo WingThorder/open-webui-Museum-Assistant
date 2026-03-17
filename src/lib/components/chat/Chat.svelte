@@ -11,7 +11,7 @@
 
 	import { get, type Unsubscriber, type Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
-	import { WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL, WEBURL } from '$lib/constants';
 
 	import {
 		chatId,
@@ -1557,7 +1557,7 @@
 					const formData = new FormData();
 					formData.append('image', _files[0].detail);
 					// Send POST request to your API Remember to check IPV4 address
-					const CNNresponse = await fetch('http://localhost:8000/recognize', {
+					const CNNresponse = await fetch(`${WEBURL}:8000/recognize`, {
 						method: 'POST',
 						body: formData
 					});
@@ -1572,7 +1572,7 @@
 						let extractedArtWorkID = CNNresult['matches'][0]['artwork_id'].split('.')[0];
 						//fetch artwork information from Artwork DB API
 						let ArtworkDBresponse = await fetch(
-							'http://localhost:7773/api/artworks/' + extractedArtWorkID
+							`${WEBURL}:7773/api/artworks/` + extractedArtWorkID
 						);
 						if (!ArtworkDBresponse.ok)
 							throw new Error('Artwork DB API error ' + ArtworkDBresponse.status);
@@ -1581,7 +1581,7 @@
 
 						//fetch artist information from Artwork DB API
 						let artwork_artistResponce = await fetch(
-							'http://localhost:7773/api/artists/' + ArtworkDBresult['result']['artistId']
+							`${WEBURL}:7773/api/artists/` + ArtworkDBresult['result']['artistId']
 						);
 						if (!artwork_artistResponce.ok)
 							throw new Error('Artist DB API error ' + artwork_artistResponce.status);
@@ -1610,16 +1610,13 @@
 						const displayer_img_url = uploadData.data.display_url;
 						// Wait for artworkByGoogle
 						const googleResponse = await fetch(
-							'http://localhost:8000/artworkByGoogle?imageUrl=' + displayer_img_url
+							`${WEBURL}:8000/artworkByGoogle?imageUrl=` + displayer_img_url
 						);
 						const googleData = await googleResponse.json();
-						const artWorkTitle = googleData.match_title;
-						const artWorkParagraph = googleData.match_paragraph;
-						const artWorkTable = googleData.match_table;
+						
 						const artworkSummary = JSON.stringify({
-							artWorkTitle,
-							artWorkParagraph,
-							artWorkTable
+							question: "User is asking an artwork information.Json file key 'data' value is the 3 website information about this artwork. Based on the json file key 'data's value to  respond user.",
+							data : googleData
 						});
 						console.log('Response: ' + JSON.stringify(googleData));
 
