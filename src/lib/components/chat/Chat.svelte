@@ -51,6 +51,7 @@
 		processDetails,
 		removeAllDetails
 	} from '$lib/utils';
+import { modelMapper, normalizeModelId } from '$lib/utils';
 
 	import {
 		createNewChat,
@@ -98,6 +99,7 @@
 	export let chatIdProp = '';
 
 	let loading = true;
+	let googleLensLoading = false;
 	let navbarElement = null;
 	const eventTarget = new EventTarget();
 	let controlPane;
@@ -118,7 +120,7 @@
 
 	let chatIdUnsubscriber: Unsubscriber | undefined;
 
-	let selectedModels = [''];
+	let selectedModels = ['']
 
 // Auto-select a model based on child mode when no explicit model is chosen
 // If child mode is enabled use `story-mode`, otherwise use `muse`.
@@ -129,13 +131,21 @@ $: if (typeof $childMode !== 'undefined') {
 
 	if ($childMode) {
 		if (isEmpty || selectedModels[0] === 'muse' || lastAutoModel === 'muse') {
-			selectedModels = ['story-mode'];
+			selectedModels = [...(modelMapper['story-mode'] ?? ['story-mode'])];
 			lastAutoModel = 'story-mode';
+		}
+		else if (isEmpty || selectedModels[0] === 'muse-discovery' || lastAutoModel === 'muse-discovery'){
+			selectedModels = [...(modelMapper['story-mode-discovery'] ?? ['story-mode-discovery'])];
+			lastAutoModel = 'story-mode-discovery';
 		}
 	} else {
 		if (isEmpty || selectedModels[0] === 'story-mode' || lastAutoModel === 'story-mode') {
-			selectedModels = ['muse'];
+			selectedModels = [...(modelMapper['muse'] ?? ['muse'])];
 			lastAutoModel = 'muse';
+		}
+		else if (isEmpty || selectedModels[0] === 'story-mode-discovery' || lastAutoModel === 'story-mode-discovery'){
+			selectedModels = [...(modelMapper['muse-discovery'] ?? ['muse-discovery'])];
+			lastAutoModel = 'muse-discovery';
 		}
 	}
 }
@@ -889,6 +899,17 @@ $: if (typeof $childMode !== 'undefined') {
 			}
 		}
 
+		// Ensure new chats respect child mode: reset to story-mode or muse
+		if (typeof $childMode !== 'undefined') {
+			if ($childMode) {
+				selectedModels = [...(modelMapper['story-mode'] ?? ['story-mode'])];
+				lastAutoModel = 'story-mode';
+			} else {
+				selectedModels = [...(modelMapper['muse'] ?? ['muse'])];
+				lastAutoModel = 'muse';
+			}
+		}
+
 		await showControls.set(false);
 		await showCallOverlay.set(false);
 		await showOverview.set(false);
@@ -1590,6 +1611,7 @@ $: if (typeof $childMode !== 'undefined') {
 					let extractedArtWorkSimilarity = CNNresult['matches'][0]['similarity_score'];
 					//If CNN is confident to identify the artwork, fetch artwork and artist information
 					if (extractedArtWorkSimilarity > 0.75) {
+						
 						let extractedArtWorkID = CNNresult['matches'][0]['artwork_id'].split('.')[0];
 						//fetch artwork information from Artwork DB API
 						let ArtworkDBresponse = await fetch(
@@ -1618,6 +1640,7 @@ $: if (typeof $childMode !== 'undefined') {
 					} else {
 						console.log('Got to google lens');
 						// Go to do google searching
+
 						let imgBBAPIKEy = 'b809ac0c59871d1e4d9161117043888d';
 
 						const uploadResponse = await fetch(
@@ -1627,6 +1650,8 @@ $: if (typeof $childMode !== 'undefined') {
 								body: formData
 							}
 						);
+							// show loading overlay while querying Google Lens
+							googleLensLoading = true;
 						const uploadData = await uploadResponse.json();
 						const displayer_img_url = uploadData.data.display_url;
 						// Wait for artworkByGoogle
@@ -1634,8 +1659,19 @@ $: if (typeof $childMode !== 'undefined') {
 							`${WEBURL}:8000/artworkByGoogle?imageUrl=` + displayer_img_url
 						);
 						const googleData = await googleResponse.json();
-						
-						const artworkSummary = JSON.stringify({
+				
+							// When falling back to Google Lens discovery, prefer discovery models
+							if (typeof $childMode !== 'undefined') {
+								if ($childMode) {
+									selectedModels = [...(modelMapper['story-mode-discovery'] ?? ['story-mode-discovery'])];
+									lastAutoModel = 'story-mode-discovery';
+								} else {
+									selectedModels = [...(modelMapper['muse-discovery'] ?? ['muse-discovery'])];
+									lastAutoModel = 'muse-discovery';
+								}
+							}
+				
+							const artworkSummary = JSON.stringify({
 							question: "User is asking an artwork information.Json file key 'data' value is the 3 website information about this artwork. Based on the json file key 'data's value to  respond user.",
 							data : googleData
 						});
@@ -1647,7 +1683,7 @@ $: if (typeof $childMode !== 'undefined') {
 					// error = e.message;
 					console.error(e);
 				} finally {
-					// loading = false;
+					googleLensLoading = false;
 				}
 			}
 		})();
@@ -2457,7 +2493,15 @@ $: if (typeof $childMode !== 'undefined') {
 					class="absolute top-0 left-0 w-full h-full bg-linear-to-t from-white to-white/85 dark:from-gray-900 dark:to-gray-900/90 z-0"
 				/>
 			{/if}
-
+		
+			{#if googleLensLoading}
+				<div class="absolute inset-0 z-50 flex items-center justify-center bg-white/60 dark:bg-gray-900/60">
+					<div class="m-auto text-center">
+						<Spinner className="size-6" />
+						<div class="mt-2 text-sm">Searching with Google Lens...</div>
+					</div>
+				</div>
+			{/if}
 			<PaneGroup direction="horizontal" class="w-full h-full">
 				<Pane defaultSize={50} minSize={30} class="h-full flex relative max-w-full flex-col">
 					<Navbar

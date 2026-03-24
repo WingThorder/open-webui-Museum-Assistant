@@ -178,6 +178,35 @@ export const capitalizeFirstLetter = (string) => {
 	return string.charAt(0).toUpperCase() + string.slice(1);
 };
 
+// Simple model mapper: logical keys -> array of model ids.
+// Use this to map friendly names (e.g. 'story-mode') to concrete model ids
+// so callers can do `selectedModels = modelMapper['story-mode']`.
+export const modelMapper: Record<string, string[]> = {
+	'story-mode': ['story-mode'],
+	'muse': ['muse']
+};
+
+// discovery models for image-based lookup flows
+modelMapper['muse-discovery'] = ['muse-discovery'];
+modelMapper['story-mode-discovery'] = ['story-mode-discovery'];
+
+// Normalize model identifiers to a canonical model id string.
+// Handles known mapper keys and simple provider-prefixed aliases like "provider:basename".
+export function normalizeModelId(id: string): string {
+	if (!id) return '';
+	if (modelMapper[id]) return modelMapper[id][0];
+
+	// If id looks like provider:thing, try the last segment
+	if (id.includes(':')) {
+		const parts = id.split(':');
+		const base = parts[parts.length - 1];
+		if (modelMapper[base]) return modelMapper[base][0];
+		return base;
+	}
+
+	return id;
+}
+
 export const splitStream = (splitOn) => {
 	let buffer = '';
 	return new TransformStream({
