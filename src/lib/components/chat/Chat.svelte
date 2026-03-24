@@ -19,6 +19,7 @@
 		config,
 		type Model,
 		models,
+		childMode,
 		tags as allTags,
 		settings,
 		showSidebar,
@@ -118,6 +119,26 @@
 	let chatIdUnsubscriber: Unsubscriber | undefined;
 
 	let selectedModels = [''];
+
+// Auto-select a model based on child mode when no explicit model is chosen
+// If child mode is enabled use `story-mode`, otherwise use `muse`.
+// Do not override when a user has already picked a custom model (not empty).
+let lastAutoModel: string | null = null;
+$: if (typeof $childMode !== 'undefined') {
+	const isEmpty = selectedModels.length === 0 || (selectedModels.length === 1 && selectedModels[0] === '');
+
+	if ($childMode) {
+		if (isEmpty || selectedModels[0] === 'muse' || lastAutoModel === 'muse') {
+			selectedModels = ['story-mode'];
+			lastAutoModel = 'story-mode';
+		}
+	} else {
+		if (isEmpty || selectedModels[0] === 'story-mode' || lastAutoModel === 'story-mode') {
+			selectedModels = ['muse'];
+			lastAutoModel = 'muse';
+		}
+	}
+}
 	let atSelectedModel: Model | undefined;
 	let selectedModelIds = [];
 	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
