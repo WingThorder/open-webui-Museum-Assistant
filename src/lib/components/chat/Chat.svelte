@@ -261,7 +261,7 @@
 			return;
 		}
 
-		const model = atSelectedModel ?? $models.find((m) => m.id === selectedModels[0]);
+		const model = atSelectedModel ?? $models.find((m) => m.id === selectedModels[2]);
 		if (model) {
 			// Set Default Tools
 			if (model?.info?.meta?.toolIds) {
@@ -862,7 +862,7 @@
 
 		if (selectedModels.length === 0 || (selectedModels.length === 1 && selectedModels[0] === '')) {
 			if (availableModels.length > 0) {
-				selectedModels = [availableModels?.at(0) ?? ''];
+				selectedModels = [availableModels?.at(2) ?? ''];
 			} else {
 				selectedModels = [''];
 			}
