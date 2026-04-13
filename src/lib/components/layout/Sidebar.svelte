@@ -864,7 +864,7 @@
 		</DropdownMenu.Content>
 	</DropdownMenu.Root>
 	{#if $user?.role === 'admin' || $user?.permissions?.workspace?.models || $user?.permissions?.workspace?.knowledge || $user?.permissions?.workspace?.prompts || $user?.permissions?.workspace?.tools}
-		<div class="">
+		<!-- <div class="">
 			<Tooltip content={$i18n.t('Workspace')} placement="right">
 				<a
 					class=" cursor-pointer flex rounded-xl hover:bg-gray-100 dark:hover:bg-gray-850 transition group"
@@ -897,6 +897,6 @@
 					</div>
 				</a>
 			</Tooltip>
-		</div>
+		</div> -->
 	{/if}
 	</div>
