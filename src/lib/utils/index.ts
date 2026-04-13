@@ -182,13 +182,13 @@ export const capitalizeFirstLetter = (string) => {
 // Use this to map friendly names (e.g. 'story-mode') to concrete model ids
 // so callers can do `selectedModels = modelMapper['story-mode']`.
 export const modelMapper: Record<string, string[]> = {
-	'story-mode': ['story-mode'],
-	'muse': ['muse']
+	'story-mode': ['museum-assistant-muse-story-collection-mode'],
+	'muse': ['museum-assistant-muse']
 };
 
 // discovery models for image-based lookup flows
-modelMapper['muse-discovery'] = ['muse-discovery'];
-modelMapper['story-mode-discovery'] = ['story-mode-discovery'];
+modelMapper['muse-discovery'] = ['museum-assistant-muse-discovery-mode'];
+modelMapper['story-mode-discovery'] = ['museum-assistant-muse-story-discovery-mode'];
 
 // Normalize model identifiers to a canonical model id string.
 // Handles known mapper keys and simple provider-prefixed aliases like "provider:basename".

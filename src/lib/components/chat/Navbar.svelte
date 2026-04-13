@@ -103,7 +103,7 @@
 			"
 				>
 				{#if showModelSelector}
-						<ModelSelector bind:selectedModels showSetDefault={!shareEnabled} />
+						<!-- <ModelSelector bind:selectedModels showSetDefault={!shareEnabled} /> -->
 				{/if}
 			</div>
 
@@ -112,7 +112,7 @@
 
 					{#if $user?.role === 'user' ? ($user?.permissions?.chat?.temporary ?? true) && !($user?.permissions?.chat?.temporary_enforced ?? false) : true}
 						{#if !chat?.id}
-							<Tooltip content={$i18n.t(`Temporary Chat`)}>
+							<!-- <Tooltip content={$i18n.t(`Temporary Chat`)}>
 								<button
 									class="flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 									id="temporary-chat-button"
@@ -142,7 +142,7 @@
 										{/if}
 									</div>
 								</button>
-							</Tooltip>
+							</Tooltip> -->
 						{:else if $temporaryChatEnabled}
 							<Tooltip content={$i18n.t(`Save Chat`)}>
 								<button
@@ -162,7 +162,7 @@
 					{/if}
 
 					{#if $mobile && !$temporaryChatEnabled && chat && chat.id}
-						<Tooltip content={$i18n.t('New Chat')}>
+						<!-- <Tooltip content={$i18n.t('New Chat')}>
 							<button
 								class=" flex {$showSidebar
 									? 'md:hidden'
@@ -176,7 +176,7 @@
 									<ChatPlus className=" size-4.5" strokeWidth="1.5" />
 								</div>
 							</button>
-						</Tooltip>
+						</Tooltip> -->
 					{/if}
 
 					{#if shareEnabled && chat && (chat.id || $temporaryChatEnabled)}
@@ -203,7 +203,7 @@
 					{/if}
 
 					{#if $user?.role === 'admin' || ($user?.permissions.chat?.controls ?? true)}
-						<Tooltip content={$i18n.t('Controls')}>
+						<!-- <Tooltip content={$i18n.t('Controls')}>
 							<button
 								class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 								on:click={async () => {
@@ -215,7 +215,7 @@
 									<Knobs className=" size-5" strokeWidth="1" />
 								</div>
 							</button>
-						</Tooltip>
+						</Tooltip> -->
 					{/if}
 
 					{#if $user !== undefined && $user !== null}
@@ -229,7 +229,7 @@
 								}
 							}}
 						>
-							<div
+							<!-- <div
 								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
 							>
 								<div class=" self-center">
@@ -241,7 +241,7 @@
 										draggable="false"
 									/>
 								</div>
-							</div>
+							</div> -->
 						</UserMenu>
 					{/if}
 				</div>
