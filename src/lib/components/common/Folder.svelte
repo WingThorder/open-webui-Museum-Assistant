@@ -25,6 +25,9 @@
 
 	export let dragAndDrop = true;
 
+	export let mode: 'light' | 'adult' = 'light';
+	export let onModeChange: null | Function = null;
+
 	let folderElement;
 
 	let draggedOver = false;
@@ -175,6 +178,29 @@
 								on:click={(e) => {}}
 							>
 								<Plus className=" size-3" strokeWidth="2.5" />
+							</button>
+						</Tooltip>
+					</button>
+				{/if}
+
+				{#if onModeChange}
+					<button
+						class="absolute z-10 right-8 invisible group-hover:visible self-center flex items-center dark:text-gray-300"
+						on:pointerup={(e) => {
+							e.stopPropagation();
+						}}
+						on:click={(e) => {
+							e.stopPropagation();
+							const newMode = mode === 'light' ? 'adult' : 'light';
+							mode = newMode;
+							onModeChange(newMode);
+						}}
+					>
+						<Tooltip content={`Mode: ${mode}`}>
+							<button
+								class="px-1.5 py-0.5 text-[10px] font-medium dark:hover:bg-gray-850 rounded-lg touch-auto bg-opacity-20 {mode === 'light' ? 'bg-blue-500 text-blue-600 dark:text-blue-400' : 'bg-purple-500 text-purple-600 dark:text-purple-400'}"
+							>
+								{mode === 'light' ? 'Light' : 'Adult'}
 							</button>
 						</Tooltip>
 					</button>

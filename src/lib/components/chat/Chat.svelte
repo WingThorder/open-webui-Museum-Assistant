@@ -2698,7 +2698,7 @@ $: if (typeof $childMode !== 'undefined') {
 								/>
 								
 								<!-- AR Button -->
-								<div class="absolute top-4 right-4 z-50">
+								<!-- <div class="absolute top-4 right-4 z-50">
 									<button
 										onclick={() => {
 											window.open('https://kwan443.github.io/', '_self');
@@ -2712,7 +2712,7 @@ $: if (typeof $childMode !== 'undefined') {
 										</svg>
 										Open AR
 									</button>
-								</div>
+								</div> -->
 							</div>
 						{/if}
 					</div>

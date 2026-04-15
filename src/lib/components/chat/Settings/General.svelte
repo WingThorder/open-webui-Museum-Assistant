@@ -4,7 +4,7 @@
 	import { getLanguages, changeLanguage } from '$lib/i18n';
 	const dispatch = createEventDispatcher();
 
-	import { config, models, settings, theme, user } from '$lib/stores';
+	import { childMode, config, models, settings, theme, user } from '$lib/stores';
 
 	const i18n = getContext('i18n');
 
@@ -188,6 +188,16 @@
 		localStorage.setItem('theme', _theme);
 		applyTheme(_theme);
 	};
+
+	const setGalleryMode = (mode: 'child' | 'adult') => {
+		const isChildMode = mode === 'child';
+		childMode.set(isChildMode);
+		try {
+			localStorage.setItem('childMode', isChildMode ? 'true' : 'false');
+		} catch (err) {
+			console.error('Failed to save childMode:', err);
+		}
+	};
 </script>
 
 <div class="flex flex-col h-full justify-between text-sm" id="tab-general">
@@ -236,6 +246,24 @@
 					</select>
 				</div>
 			</div>
+
+			<div class=" flex w-full justify-between">
+				<div class=" self-center text-xs font-medium">{$i18n.t('Gallery Mode')}</div>
+				<div class="flex items-center relative">
+					<select
+						class="dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
+							? ''
+							: 'outline-hidden'}"
+						value={$childMode ? 'child' : 'adult'}
+						on:change={(e) => {
+							setGalleryMode(e.target.value);
+						}}
+					>
+						<option value="child">{$i18n.t('Child')}</option>
+						<option value="adult">{$i18n.t('Adult')}</option>
+					</select>
+				</div>
+			</div>
 			{#if $i18n.language === 'en-US' && !($config?.license_metadata ?? false)}
 				<div
 					class="mb-2 text-xs {($settings?.highContrastMode ?? false)
@@ -276,7 +304,7 @@
 			</div>
 		</div>
 
-		{#if $user?.role === 'admin' || ($user?.permissions.chat?.system_prompt ?? true)}
+		{#if $user?.role === 'admin'}
 			<hr class="border-gray-100/50 dark:border-gray-850 my-3" />
 
 			<div>
@@ -293,7 +321,7 @@
 			</div>
 		{/if}
 
-		{#if $user?.role === 'admin' || ($user?.permissions.chat?.controls ?? true)}
+		{#if $user?.role === 'admin'}
 			<div class="mt-2 space-y-3 pr-1.5">
 				<div class="flex justify-between items-center text-sm">
 					<div class="  font-medium">{$i18n.t('Advanced Parameters')}</div>

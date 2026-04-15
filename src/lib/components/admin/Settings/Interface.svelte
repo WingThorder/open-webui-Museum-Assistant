@@ -393,7 +393,6 @@
 						<div class=" self-center text-xs">
 							{$i18n.t('Banners')}
 						</div>
-
 						<button
 							class="p-1 px-3 text-xs flex rounded-sm transition"
 							type="button"
