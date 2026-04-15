@@ -760,38 +760,6 @@
 	{:else}
 		<slot />
 	{/if}
-
-	<div class="fixed top-4 left-20 z-[200] flex items-center gap-2 md:left-[8rem]">
-		<button
-			class="flex items-center gap-2 rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-800 shadow-lg px-3 py-2 hover:bg-white dark:hover:bg-gray-900 transition"
-			on:click={toggleTheme}
-			aria-label={$theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-		>
-			{#if $theme === 'dark'}
-				<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<circle cx="12" cy="12" r="4" />
-					<path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
-				</svg>
-				<span class="text-sm font-medium">Light</span>
-			{:else}
-				<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-					<path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79Z" />
-				</svg>
-				<span class="text-sm font-medium">Dark</span>
-			{/if}
-		</button>
-		<button
-			class="flex items-center gap-2 rounded-full bg-white/90 dark:bg-gray-900/90 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-800 shadow-lg px-3 py-2 hover:bg-white dark:hover:bg-gray-900 transition {$childMode ? 'ring-2 ring-amber-400' : ''}"
-			on:click={toggleChildMode}
-			aria-label="Child-friendly filter for gallery"
-			title="Child-friendly: hide artwork that may be uncomfortable for young visitors"
-		>
-			<svg class="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-				<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-			</svg>
-			<span class="text-sm font-medium">{$childMode ? 'Child' : 'Adult'}</span>
-		</button>
-	</div>
 {/if}
 
 <Toaster

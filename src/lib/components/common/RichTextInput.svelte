@@ -942,6 +942,9 @@
 										console.log('Letting heading suggestion handle Enter key');
 										return true;
 									}
+
+									// Append sentence when sending prompt
+									editor.commands.insertContent(' Please respond in English.');
 								}
 							}
 

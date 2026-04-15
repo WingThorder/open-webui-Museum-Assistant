@@ -80,6 +80,7 @@ export const getLanguages = async () => {
 };
 export const changeLanguage = (lang: string) => {
 	document.documentElement.setAttribute('lang', lang);
+	localStorage.setItem('locale', lang);
 	i18next.changeLanguage(lang);
 };
 
