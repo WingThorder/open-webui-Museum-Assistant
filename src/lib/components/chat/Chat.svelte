@@ -80,21 +80,14 @@ import { modelMapper, normalizeModelId } from '$lib/utils';
 
 	import { fade } from 'svelte/transition';
 
-	import Banner from '../common/Banner.svelte';
 	import MessageInput from '$lib/components/chat/MessageInput.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Navbar from '$lib/components/chat/Navbar.svelte';
 	import ChatControls from './ChatControls.svelte';
 	import EventConfirmDialog from '../common/ConfirmDialog.svelte';
 	import Placeholder from './Placeholder.svelte';
-	import NotificationToast from '../NotificationToast.svelte';
 	import Spinner from '../common/Spinner.svelte';
-	import Tooltip from '../common/Tooltip.svelte';
-	import Sidebar from '../icons/Sidebar.svelte';
 	import { getFunctions } from '$lib/apis/functions';
-	import Image from '../common/Image.svelte';
-	import { json } from '@sveltejs/kit';
-	import ResponseMessage from './Messages/ResponseMessage.svelte';
 
 	export let chatIdProp = '';
 
@@ -382,7 +375,7 @@ $: if (typeof $childMode !== 'undefined') {
 				const data = event?.data?.data ?? null;
 				console.log(data)
 				if (Object.prototype.hasOwnProperty.call(data, "content")) {
-					data.content = data.content.replace(/\[\d+\]/g, "");
+					data.content = data.content.replace(/\[[^\]]*\]/g, "");
 				}
 				
 
@@ -1488,7 +1481,7 @@ $: if (typeof $childMode !== 'undefined') {
 		}
 
 		console.log(data);
-		data.content = data.content.replace(/\[\d+\]/g, "");
+		data.content = data.content.replace(/\[[^\]]*\]/g, "");
 		await tick();
 
 		if (autoScroll) {
