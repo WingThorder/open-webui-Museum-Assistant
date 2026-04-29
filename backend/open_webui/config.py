@@ -1503,7 +1503,11 @@ def validate_cors_origin(origin):
 # To test CORS_ALLOW_ORIGIN locally, you can set something like
 # CORS_ALLOW_ORIGIN=http://localhost:5173;http://localhost:8080
 # in your .env file depending on your frontend port, 5173 in this case.
-CORS_ALLOW_ORIGIN = os.environ.get("CORS_ALLOW_ORIGIN", "*").split(";")
+DEFAULT_CORS_ALLOW_ORIGIN = (
+    "http://muse-ar.online;https://muse-ar.online;http://49.131.33.176:5173;"
+    "http://49.131.33.176:8080;http://localhost:5173;http://localhost:8080"
+)
+CORS_ALLOW_ORIGIN = os.environ.get("CORS_ALLOW_ORIGIN", DEFAULT_CORS_ALLOW_ORIGIN).split(";")
 
 # Allows custom URL schemes (e.g., app://) to be used as origins for CORS.
 # Useful for local development or desktop clients with schemes like app:// or other custom protocols.
@@ -1512,13 +1516,12 @@ CORS_ALLOW_CUSTOM_SCHEME = os.environ.get("CORS_ALLOW_CUSTOM_SCHEME", "").split(
 
 if CORS_ALLOW_ORIGIN == ["*"]:
     log.warning(
-        "\n\nWARNING: CORS_ALLOW_ORIGIN IS SET TO '*' - NOT RECOMMENDED FOR PRODUCTION DEPLOYMENTS.\n"
+        "\n\nWARNING: CORS_ALLOW_ORIGIN was set to '*'; falling back to a safe allow-list because credentialed requests do not work with wildcard CORS.\n"
     )
-else:
-    # You have to pick between a single wildcard or a list of origins.
-    # Doing both will result in CORS errors in the browser.
-    for origin in CORS_ALLOW_ORIGIN:
-        validate_cors_origin(origin)
+    CORS_ALLOW_ORIGIN = DEFAULT_CORS_ALLOW_ORIGIN.split(";")
+
+for origin in CORS_ALLOW_ORIGIN:
+    validate_cors_origin(origin)
 
 
 class BannerModel(BaseModel):

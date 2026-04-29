@@ -23,6 +23,15 @@ export default defineConfig({
 	build: {
 		sourcemap: true
 	},
+	server: {
+		port: 5173,
+		allowedHosts: ['muse-ar.online','muse-ar.ddns.net'],
+		cors: {
+			origin: '*',
+			methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+			allowedHeaders: ['*']
+		}
+	},
 	worker: {
 		format: 'es'
 	},

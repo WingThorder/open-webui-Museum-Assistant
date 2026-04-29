@@ -1,12 +1,23 @@
 import { browser, dev } from '$app/environment';
+import { env } from '$env/dynamic/public';
 // import { version } from '../../package.json';
 
 export const APP_NAME = 'Museum Assistant Muse';
 
-export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
-export const WEBURL = browser ? (dev ? `http://${location.hostname}` : ``) : ``;
+const normalizedPublicWebuiBaseUrl = env.PUBLIC_WEBUI_BASE_URL?.replace(/\/$/, '');
+const normalizedPublicWeburl = env.PUBLIC_WEBURL?.replace(/\/$/, '');
+
+export const WEBUI_HOSTNAME = normalizedPublicWebuiBaseUrl
+	? new URL(normalizedPublicWebuiBaseUrl).host
+	: browser
+		? dev
+			? `${location.hostname}:8080`
+			: location.host
+		: '';
+export const WEBURL = normalizedPublicWeburl ?? (browser ? (dev ? `http://${location.hostname}` : location.origin) : '');
 // export const WEBUI_HOSTNAME = browser ? (dev ? `curious-falcon.ngrok-free.app` : ``) : '';
-export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
+export const WEBUI_BASE_URL =
+	normalizedPublicWebuiBaseUrl ?? (browser ? (dev ? `http://${location.hostname}:8080` : location.origin) : '');
 // export const WEBUI_BASE_URL = browser ? (dev ? `http://localhost:8080` : ``) : ``;
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
 

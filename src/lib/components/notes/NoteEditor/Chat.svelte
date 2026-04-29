@@ -85,7 +85,16 @@
 	let editEnabled = false;
 	let chatInputElement = null;
 
-	const DEFAULT_DOCUMENT_EDITOR_PROMPT = `You are an expert document editor.
+	const getReplyLanguageFromSettings = () => localStorage.getItem('locale') || 'en-US';
+
+	const getReplyLanguageInstruction = () => {
+		const locale = getReplyLanguageFromSettings();
+		return `You must reply only in ${locale}. Do not reply in any other language unless the user explicitly asks to switch language.`;
+	};
+
+	const DEFAULT_DOCUMENT_EDITOR_PROMPT = `${getReplyLanguageInstruction()}
+
+You are an expert document editor.
 
 ## Task
 Based on the user's instruction, update and enhance the existing notes or selection by incorporating relevant and accurate information from the provided context in the content's primary language. Ensure all edits strictly follow the user’s intent.
@@ -164,7 +173,7 @@ Based on the user's instruction, update and enhance the existing notes or select
 		if (editEnabled) {
 			system = `${DEFAULT_DOCUMENT_EDITOR_PROMPT}\n\n`;
 		} else {
-			system = `You are a helpful assistant. Please answer the user's questions based on the context provided.\n\n`;
+			system = `${getReplyLanguageInstruction()}\nYou are a helpful assistant. Please answer the user's questions based on the context provided.\n\n`;
 		}
 
 		system +=

@@ -98,6 +98,12 @@ import { modelMapper, normalizeModelId } from '$lib/utils';
 
 	export let chatIdProp = '';
 
+	const getReplyLanguageFromSettings = () => localStorage.getItem('locale') || 'en-US';
+	const getReplyLanguageInstruction = () => {
+		const locale = getReplyLanguageFromSettings();
+		return `You must reply only in ${locale}. Do not reply in any other language unless the user explicitly asks to switch language.`;
+	};
+
 	let loading = true;
 	let googleLensLoading = false;
 	let navbarElement = null;
@@ -1925,13 +1931,16 @@ $: if (typeof $childMode !== 'undefined') {
 			params?.stream_response ??
 			true;
 
+		const baseSystemPrompt = `${params?.system ?? $settings?.system ?? ''}`.trim();
+		const combinedSystemPrompt = baseSystemPrompt
+			? `${getReplyLanguageInstruction()}\n\n${baseSystemPrompt}`
+			: getReplyLanguageInstruction();
+
 		let messages = [
-			params?.system || $settings.system
-				? {
-						role: 'system',
-						content: `${params?.system ?? $settings?.system ?? ''}`
-					}
-				: undefined,
+			{
+				role: 'system',
+				content: combinedSystemPrompt
+			},
 			..._messages.map((message) => ({
 				...message,
 				content: processDetails(message.content)

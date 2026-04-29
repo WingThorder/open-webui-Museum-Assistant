@@ -25,6 +25,8 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_SECRET_KEY='
+      - 'CORS_ALLOW_ORIGIN=http://49.131.33.176:5173;http://49.131.33.176:8080;http://muse-ar.online;https://muse-ar.online'
+      - 'FORWARDED_ALLOW_IPS=*'
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped

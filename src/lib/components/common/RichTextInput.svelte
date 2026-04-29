@@ -944,7 +944,7 @@
 									}
 
 									// Append sentence when sending prompt
-									editor.commands.insertContent(' Please respond in English.');
+									editor.commands.insertContent('');
 								}
 							}
 

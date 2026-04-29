@@ -480,10 +480,10 @@
 					if (blob) {
 						audioCache.set(content, new Audio(blob));
 					}
-				} else if ($config.audio.tts.engine !== '') {
+				} else if ($config?.audio?.tts?.engine !== '') {
 					const res = await synthesizeOpenAISpeech(
 						localStorage.token,
-						$settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice
+						$settings?.audio?.tts?.defaultVoice === $config?.audio?.tts?.voice
 							? ($settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice)
 							: $config?.audio?.tts?.voice,
 						content
@@ -526,7 +526,7 @@
 						emoji = null;
 					}
 
-					if ($config.audio.tts.engine !== '') {
+					if ($config?.audio?.tts?.engine !== '') {
 						try {
 							console.log(
 								'%c%s',
