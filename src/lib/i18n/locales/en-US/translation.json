@@ -1733,5 +1733,9 @@
 	"Response Mode": "",
 	"Normal": "",
 	"Child": "",
-	"Gallery": ""
+	"Gallery": "",
+	"Response Mode": "Response Mode",
+	"Normal": "Normal",
+	"Child": "Child",
+	"Gallery": "Gallery"
 }

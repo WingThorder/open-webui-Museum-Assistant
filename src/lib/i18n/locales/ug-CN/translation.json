@@ -1729,5 +1729,9 @@
 	"Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.": "تۆلەم پۇلىڭىز بىۋاسىتە قىستۇرما تەرەققىياتچىسىغا بېرىلىدۇ؛ Open WebUI ھېچقانداق پىرسېنت ئالمايدۇ. بىراق تاللانغان مالىيە پلاتفورمىسىنىڭ ئۆزىنىڭ ھەققى بولۇشى مۇمكىن.",
 	"YouTube": "Youtube",
 	"Youtube Language": "Youtube تىلى",
-	"Youtube Proxy URL": "Youtube ۋاكالەتچى URL"
+	"Youtube Proxy URL": "Youtube ۋاكالەتچى URL",
+	"Response Mode": "جاۋاب ھالىتى",
+	"Normal": "نورمال",
+	"Child": "چوقۇق",
+	"Gallery": "گاللىرىيە"
 }

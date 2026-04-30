@@ -1730,5 +1730,9 @@
 	"Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.": "",
 	"YouTube": "Јутјуб",
 	"Youtube Language": "",
-	"Youtube Proxy URL": ""
+	"Youtube Proxy URL": "",
+	"Response Mode": "Режим одговора",
+	"Normal": "Нормално",
+	"Child": "Дете",
+	"Gallery": "Галерија"
 }

@@ -1728,5 +1728,9 @@
 	"Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.": "あなたの全ての寄付はプラグイン開発者へ直接送られます。Open WebUI は手数料を一切取りません。ただし、選択した資金提供プラットフォーム側に手数料が発生する場合があります。",
 	"YouTube": "YouTube",
 	"Youtube Language": "YouTubeの言語",
-	"Youtube Proxy URL": "YouTubeのプロキシURL"
+	"Youtube Proxy URL": "YouTubeのプロキシURL",
+	"Response Mode": "レスポンスモード",
+	"Normal": "通常",
+	"Child": "子供",
+	"Gallery": "ギャラリー"
 }
