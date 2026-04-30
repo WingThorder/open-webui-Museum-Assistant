@@ -572,7 +572,7 @@
 								<Grid className="size-4.5" strokeWidth="2" />
 							</div>
 							<div class="flex self-center translate-y-[0.5px]">
-								<span class="self-center text-sm font-primary">Gallery</span>
+								<span class="self-center text-sm font-primary">{$i18n.t('Gallery')}</span>
 							</div>
 						</a>
 					</div>

@@ -1728,5 +1728,9 @@
 	"Your entire contribution will go directly to the plugin developer; Open WebUI does not take any percentage. However, the chosen funding platform might have its own fees.": "您的所有貢獻將會直接交給外掛開發者；Open WebUI 不會收取任何百分比。然而，所選擇的贊助平臺可能有其自身的費用。",
 	"YouTube": "YouTube",
 	"Youtube Language": "YouTube 語言",
-	"Youtube Proxy URL": "YouTube 代理伺服器 URL"
+	"Youtube Proxy URL": "YouTube 代理伺服器 URL",
+	"Response Mode": "回應模式",
+	"Normal": "正常",
+	"Child": "兒童",
+	"Gallery": "畫廊"
 }

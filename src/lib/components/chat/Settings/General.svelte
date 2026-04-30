@@ -248,7 +248,7 @@
 			</div>
 
 			<div class=" flex w-full justify-between">
-				<div class=" self-center text-xs font-medium">{$i18n.t('Gallery Mode')}</div>
+				<div class=" self-center text-xs font-medium">{$i18n.t('Response Mode')}</div>
 				<div class="flex items-center relative">
 					<select
 						class="dark:bg-gray-900 w-fit pr-8 rounded-sm py-2 px-2 text-xs bg-transparent text-right {$settings.highContrastMode
@@ -260,7 +260,7 @@
 						}}
 					>
 						<option value="child">{$i18n.t('Child')}</option>
-						<option value="adult">{$i18n.t('Adult')}</option>
+						<option value="adult">{$i18n.t('Normal')}</option>
 					</select>
 				</div>
 			</div>

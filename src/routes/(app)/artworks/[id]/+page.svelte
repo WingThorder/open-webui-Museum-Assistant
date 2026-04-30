@@ -32,7 +32,7 @@
 			<div class="detail-info-card">
 			<h1 class="detail-title">{artwork.title.toUpperCase()}</h1>
 			<p class="detail-desc">{artwork.description || 'Explore this artwork from different angles.'}</p>
-			<div class="detail-audio">
+			<!-- <div class="detail-audio">
 				<button type="button" class="audio-btn" aria-label="Info">?</button>
 				<button type="button" class="audio-btn" aria-label="Previous">⏮</button>
 				<button type="button" class="audio-btn audio-play" aria-label={isPlaying ? 'Pause' : 'Play'} on:click={() => (isPlaying = !isPlaying)}>
@@ -47,7 +47,7 @@
 					<div class="audio-progress-bar" style="width: {audioProgress * 100}%"></div>
 				</div>
 				<span class="audio-time">1:03 / 3:12</span>
-			</div>
+			</iv>d -->
 		</div>
 		</div>
 	</div>
