@@ -128,6 +128,7 @@ async def get_user_chat_list_by_user_id(
 async def create_new_chat(form_data: ChatForm, user=Depends(get_verified_user)):
     try:
         chat = Chats.insert_new_chat(user.id, form_data)
+        print("fuck Fuck")
         return ChatResponse(**chat.model_dump())
     except Exception as e:
         log.exception(e)

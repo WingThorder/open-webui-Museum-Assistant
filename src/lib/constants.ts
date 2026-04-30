@@ -2,7 +2,7 @@ import { browser, dev } from '$app/environment';
 import { env } from '$env/dynamic/public';
 // import { version } from '../../package.json';
 
-export const APP_NAME = 'Museum Assistant Muse';
+export const APP_NAME = 'Muse AR';
 
 const normalizedPublicWebuiBaseUrl = env.PUBLIC_WEBUI_BASE_URL?.replace(/\/$/, '');
 const normalizedPublicWeburl = env.PUBLIC_WEBURL?.replace(/\/$/, '');

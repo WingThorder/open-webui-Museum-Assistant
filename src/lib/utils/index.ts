@@ -362,8 +362,20 @@ export const compressImage = async (imageUrl, maxWidth, maxHeight) => {
 			const context = canvas.getContext('2d');
 			context.drawImage(img, 0, 0, width, height);
 
-			// Get compressed image URL
-			const compressedUrl = canvas.toDataURL();
+			// Get compressed image URL with JPEG quality 0.3 (30%) for maximum compression
+			// This reduces file size dramatically - ideal for fast uploads and network-limited scenarios
+			const compressedUrl = canvas.toDataURL('image/jpeg', 0.3);
+			
+			// Calculate and show image sizes
+			const originalSize = (imageUrl.length * 3) / 4; // Approximate original DataURL size in bytes
+			const compressedSize = (compressedUrl.length * 3) / 4; // Compressed DataURL size in bytes
+			const reductionPercent = Math.round(((originalSize - compressedSize) / originalSize) * 100);
+			
+			console.log('📸 Image Compression Stats:');
+			console.log(`  Original: ${(originalSize / 1024 / 1024).toFixed(2)} MB`);
+			console.log(`  Compressed: ${(compressedSize / 1024 / 1024).toFixed(2)} MB`);
+			console.log(`  Reduction: ${reductionPercent}%`);
+			
 			resolve(compressedUrl);
 		};
 		img.onerror = (error) => reject(error);
@@ -1202,7 +1214,6 @@ export const createMessagesList = (history, messageId) => {
 	if (messageId === null) {
 		return [];
 	}
-
 	const message = history.messages[messageId];
 	if (message === undefined) {
 		return [];

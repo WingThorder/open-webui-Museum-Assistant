@@ -1570,6 +1570,19 @@ $: if (typeof $childMode !== 'undefined') {
 		files = [];
 		messageInput?.setText('');
 
+		// Prepare files for backend - use only compressed versions for images
+		const backendFiles = _files.map((file) => {
+			if (file.type === 'image' && file.url) {
+				// For images, replace detail (original) with compressed url reference
+				return {
+					...file,
+					url: file.url  // Keep compressed URL
+					// Note: Don't include 'detail' property to avoid sending original large file to backend
+				};
+			}
+			return file;
+		});
+
 		// Create user message
 		let userMessageId = uuidv4();
 		let userMessage = {
@@ -1579,7 +1592,7 @@ $: if (typeof $childMode !== 'undefined') {
 			role: 'user',
 			content: userPrompt,
 			additionalMessage: '',
-			files: _files.length > 0 ? _files : undefined,
+			files: backendFiles.length > 0 ? backendFiles : undefined,
 			timestamp: Math.floor(Date.now() / 1000), // Unix epoch
 			models: selectedModels,
 			firstTimeCooperativeArtworkIdentification: false // to identify if a cooperative artwork is identified first
@@ -1594,13 +1607,26 @@ $: if (typeof $childMode !== 'undefined') {
 				};
 				messages = createMessagesList(history, history.currentId);
 				try {
-					// Create FormData just like curl -F 'image=@file'
-					const formData = new FormData();
-					formData.append('image', _files[0].detail);
-					// Send POST request to your API Remember to check IPV4 address
+					// Convert compressed image DataURL to Blob/File for processing
+					const compressedResponse = await fetch(_files[0].url);
+					const compressedBlob = await compressedResponse.blob();
+					const fileName = _files[0].detail.name || 'image.jpg';
+					const tempCompressedFile = new File([compressedBlob], fileName, { type: compressedBlob.type });
+					
+					// Log original and compressed file sizes
+					const originalSize = _files[0].detail.size;
+					const compressedSize = tempCompressedFile.size;
+					const reductionPercent = Math.round(((originalSize - compressedSize) / originalSize) * 100);
+					console.log(`📸 File Sizes - Original: ${(originalSize / 1024 / 1024).toFixed(2)} MB, Compressed: ${(compressedSize / 1024 / 1024).toFixed(2)} MB, Reduction: ${reductionPercent}%`);
+					
+					// Create FormData for CNN with ORIGINAL (uncompressed) image for better accuracy
+					const cnnFormData = new FormData();
+					cnnFormData.append('image', _files[0].detail);
+					
+					// Send POST request to CNN Remember to check IPV4 address
 					const CNNresponse = await fetch(`${WEBURL}:8000/recognize`, {
 						method: 'POST',
-						body: formData
+						body: cnnFormData
 					});
 
 					if (!CNNresponse.ok) throw new Error('CNN API error ' + CNNresponse.status);
@@ -1638,15 +1664,19 @@ $: if (typeof $childMode !== 'undefined') {
 						currentCooperativeArtworkInformation = artworkSummary;
 					} else {
 						console.log('Got to google lens');
-						// Go to do google searching
+						// Go to do google searching - use same COMPRESSED image (temp)
 
 						let imgBBAPIKEy = 'b809ac0c59871d1e4d9161117043888d';
+
+						// Reuse the compressed temp file created above
+						const googleFormData = new FormData();
+						googleFormData.append('image', tempCompressedFile);
 
 						const uploadResponse = await fetch(
 							'https://api.imgbb.com/1/upload?key=' + imgBBAPIKEy,
 							{
 								method: 'POST',
-								body: formData
+								body: googleFormData
 							}
 						);
 							// show loading overlay while querying Google Lens
@@ -1700,9 +1730,9 @@ $: if (typeof $childMode !== 'undefined') {
 		// focus on chat input
 		const chatInput = document.getElementById('chat-input');
 		chatInput?.focus();
-
+		console.log("Doing saveSessionSelectedModels")
 		saveSessionSelectedModels();
-
+		console.log("Doing sendMessage()")
 		await sendMessage(history, userMessageId, { newChat: true });
 	};
 
@@ -1739,7 +1769,7 @@ $: if (typeof $childMode !== 'undefined') {
 		// Create response messages for each selected model
 		for (const [_modelIdx, modelId] of selectedModelIds.entries()) {
 			const model = $models.filter((m) => m.id === modelId).at(0);
-
+			console.log("Doing model looping", model)
 			if (model) {
 				let responseMessageId = uuidv4();
 				let cooperativeArtworkSummary =
@@ -1779,15 +1809,17 @@ $: if (typeof $childMode !== 'undefined') {
 
 		// Create new chat if newChat is true and first user message
 		if (newChat && _history.messages[_history.currentId].parentId === null) {
+			console.log("Doing initChatHandler")
 			_chatId = await initChatHandler(_history);
 		}
-
+		console.log("Doing tick()`")
 		await tick();
 
 		_history = JSON.parse(JSON.stringify(history));
 		// Save chat after all messages have been created
+		console.log("Doing saveChatHandler")
 		await saveChatHandler(_chatId, _history);
-
+		console.log("Doing Promise all ")
 		await Promise.all(
 			selectedModelIds.map(async (modelId, _modelIdx) => {
 				console.log('modelId', modelId);
@@ -2322,6 +2354,7 @@ $: if (typeof $childMode !== 'undefined') {
 		let _chatId = $chatId;
 
 		if (!$temporaryChatEnabled) {
+			console.log("Doing createNewChat")
 			chat = await createNewChat(
 				localStorage.token,
 				{
@@ -2337,8 +2370,9 @@ $: if (typeof $childMode !== 'undefined') {
 				},
 				$selectedFolder?.id
 			);
-
+			console.log("next")
 			_chatId = chat.id;
+			console.log("doing chaildIDSet")
 			await chatId.set(_chatId);
 
 			window.history.replaceState(history.state, '', `/c/${_chatId}`);

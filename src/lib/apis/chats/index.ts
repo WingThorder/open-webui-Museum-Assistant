@@ -3,7 +3,7 @@ import { getTimeRange } from '$lib/utils';
 
 export const createNewChat = async (token: string, chat: object, folderId: string | null) => {
 	let error = null;
-
+	console.log("doing fetch to create new chat with folderId:");
 	const res = await fetch(`${WEBUI_API_BASE_URL}/chats/new`, {
 		method: 'POST',
 		headers: {
@@ -17,6 +17,7 @@ export const createNewChat = async (token: string, chat: object, folderId: strin
 		})
 	})
 		.then(async (res) => {
+			console.log("getting response")
 			if (!res.ok) throw await res.json();
 			return res.json();
 		})
@@ -41,7 +42,7 @@ export const unarchiveAllChats = async (token: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -130,7 +131,7 @@ export const getChatList = async (
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -183,7 +184,7 @@ export const getChatListByUserId = async (
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
-				...(token && { authorization: `Bearer ${token}` })
+				authorization: `Bearer ${token}`
 			}
 		}
 	)
@@ -233,7 +234,7 @@ export const getArchivedChatList = async (
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -267,7 +268,7 @@ export const getAllChats = async (token: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -302,7 +303,7 @@ export const getChatListBySearchText = async (token: string, text: string, page:
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -336,7 +337,7 @@ export const getChatsByFolderId = async (token: string, folderId: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -406,7 +407,7 @@ export const getAllArchivedChats = async (token: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -437,7 +438,7 @@ export const getAllUserChats = async (token: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -499,7 +500,7 @@ export const getPinnedChatList = async (token: string = '') => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -570,7 +571,7 @@ export const getChatById = async (token: string, id: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {
@@ -955,7 +956,7 @@ export const deleteChatById = async (token: string, id: string) => {
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
-			...(token && { authorization: `Bearer ${token}` })
+			authorization: `Bearer ${token}`
 		}
 	})
 		.then(async (res) => {

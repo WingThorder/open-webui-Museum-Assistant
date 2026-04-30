@@ -657,12 +657,13 @@
 
 					// If neither settings nor config wants compression, return original URL.
 					if (!settingsCompression && !configWidth && !configHeight) {
-						return imageUrl;
+						// CHANGED: Always compress regardless of settings
+						// Proceed to compression with defaults (1000x1000px, JPEG 30%)
 					}
 
-					// Default to null (no compression unless set)
-					let width = null;
-					let height = null;
+					// Default to 1000px (always compress to these dimensions)
+					let width = 1000;
+					let height = 1000;
 
 					// If user/settings want compression, pick their preferred size.
 					if (settingsCompression) {
@@ -678,11 +679,8 @@
 						height = configHeight;
 					}
 
-					// Do the compression if required
-					if (width || height) {
-						return await compressImage(imageUrl, width, height);
-					}
-					return imageUrl;
+					// Always compress with dimensions and JPEG 30% quality
+					return await compressImage(imageUrl, width, height);
 				};
 
 				let reader = new FileReader();
